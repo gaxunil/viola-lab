@@ -25,20 +25,21 @@ enforced by ESLint import rules and `tests/architecture.test.ts`.
 - [x] `viola/strings.ts`, `viola/fingerboard.ts` — position is diatonic
 - [x] `viola/fingering.ts` — exact shortest path, carried position
 - [x] `viola/scaleFingering.ts` — range feasibility (the B flat problem)
+- [x] `tempo.ts` — quarter-note tempo, beat-unit conversion, rebase on change
 - [x] `scripts/inspect.ts` — terminal inspector for reviewing by eye
-- [ ] `notation/staff.ts` — clef-relative staff steps, printed-accidental rules
+- [x] `notation/staff.ts` — clef-relative staff steps, printed-accidental rules
 - [ ] `rhythm/presets.ts` — the preset rhythm library, incl. 12/8
-- [ ] `score.ts` — the `Score` / `MusicalEvent` contract with the audio layer
-- [ ] `compile/metronome.ts`, `compile/scale.ts`, `compile/rhythm.ts`
+- [x] `score.ts` — the `Score` / `MusicalEvent` contract with the audio layer
+- [x] `compile/metronome.ts`, `compile/scale.ts`, `compile/rhythm.ts`
 - [ ] `scoring/tapScore.ts`, `scoring/calibration.ts` — pure, no timers
 - [ ] `index.ts` — the barrel the UI imports
 
 ## 3. Timing engine — still silent, fully tested
 
-- [ ] `audio/clock.ts` — `AudioClock` / `Ticker` seams, worker-backed ticker
-- [ ] `audio/transport.ts` — lookahead scheduler over injected seams
-- [ ] Fakes: `FakeClock`, `ManualTicker`, `RecordingSink`
-- [ ] Scheduler tests: exact event times, no double-schedule, stop cancels
+- [x] `audio/clock.ts` — `AudioClock` / `Ticker` seams, worker-backed ticker
+- [x] `audio/transport.ts` — lookahead scheduler over injected seams
+- [x] Fakes: `FakeClock`, `ManualTicker`, `RecordingSink`
+- [x] Scheduler tests: exact event times, no double-schedule, stop cancels
       the future, background stall does not machine-gun, loop wrap, tempo change
 
 ## 4. First sound
