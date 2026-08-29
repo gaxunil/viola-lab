@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { PPQ } from '@core/ticks'
 import { meter } from '@core/rhythm/meter'
 import { dur } from '@core/rhythm/duration'
 import { note } from '@core/rhythm/bar'

@@ -28,10 +28,10 @@ enforced by ESLint import rules and `tests/architecture.test.ts`.
 - [x] `tempo.ts` — quarter-note tempo, beat-unit conversion, rebase on change
 - [x] `scripts/inspect.ts` — terminal inspector for reviewing by eye
 - [x] `notation/staff.ts` — clef-relative staff steps, printed-accidental rules
-- [ ] `rhythm/presets.ts` — the preset rhythm library, incl. 12/8
+- [x] `rhythm/presets.ts` — the preset rhythm library, incl. 12/8
 - [x] `score.ts` — the `Score` / `MusicalEvent` contract with the audio layer
 - [x] `compile/metronome.ts`, `compile/scale.ts`, `compile/rhythm.ts`
-- [ ] `scoring/tapScore.ts`, `scoring/calibration.ts` — pure, no timers
+- [x] `scoring/tapScore.ts`, `scoring/calibration.ts` — pure, no timers
 - [ ] `index.ts` — the barrel the UI imports
 
 ## 3. Timing engine — still silent, fully tested
