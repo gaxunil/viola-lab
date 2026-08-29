@@ -19,6 +19,7 @@ import {
   Articulation,
   Beam,
   Dot,
+  Font,
   Formatter,
   Fraction,
   FretHandFinger,
@@ -49,19 +50,26 @@ import {
  * time signatures, fingerings and string numbers. Both are needed or those
  * glyphs come out as empty boxes.
  *
- * The promise is module-level and shared, because the font tables are global to
- * VexFlow: a page with eight staves on it should fetch the fonts once, not
- * eight times. `loadFonts` pulls the woff2 files over the network from
- * `Font.HOST_URL` (jsdelivr by default) using the FontFace API.
+ * The fonts are SELF-HOSTED. VexFlow defaults `Font.HOST_URL` to jsdelivr and
+ * fetches the woff2 at runtime, which would quietly defeat the point of an
+ * offline PWA: she opens the app in a practice room with no wifi and every
+ * staff renders in a substitute face. Pointing HOST_URL at our own /fonts
+ * directory means the service worker precaches them like any other asset.
  *
- * It never rejects. If the fetch fails — offline, CDN blocked — we still point
- * VexFlow at the families and draw: a staff in a substitute font is worse than
- * Bravura but far better than a blank rectangle and a stalled promise that
- * every later staff would then reuse.
+ * The promise is module-level and shared, because the font tables are global to
+ * VexFlow: a page with eight staves should fetch the fonts once, not eight times.
+ *
+ * It never rejects. If loading fails we still point VexFlow at the families and
+ * draw — a staff in a substitute font is worse than Bravura but far better than a
+ * blank rectangle and a stalled promise that every later staff would reuse.
  */
 let fontsReady: Promise<void> | null = null
 
+/** Matches VexFlow's own Font.FILES layout: <family>/<family>.woff2 */
+const FONT_BASE_URL = '/fonts/'
+
 function loadNotationFonts(): Promise<void> {
+  Font.HOST_URL = FONT_BASE_URL
   fontsReady ??= VexFlow.loadFonts('Bravura', 'Academico')
     .then(() => {
       VexFlow.setFonts('Bravura', 'Academico')

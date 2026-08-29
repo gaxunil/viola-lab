@@ -48,3 +48,122 @@ footer {
   font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* Mobile first: everything reachable one-handed, targets big enough to hit
+   without looking, because she will be holding a viola in the other hand. */
+header { margin-bottom: 1.5rem; }
+
+.panel {
+  background: var(--surface);
+  border-radius: 0.9rem;
+  padding: 1.25rem;
+}
+
+.panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.beats {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  min-height: 2.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #3a3a44;
+  transition: transform 60ms ease-out, background-color 60ms ease-out;
+}
+
+/* A stronger beat is a bigger target even when silent, so the shape of the bar
+   is visible before you press play. */
+.dot.medium { width: 1.25rem; height: 1.25rem; }
+.dot.strong { width: 1.6rem; height: 1.6rem; }
+
+.dot.active {
+  background: var(--accent);
+  transform: scale(1.35);
+}
+
+.readout {
+  text-align: center;
+  margin: 0 0 1.25rem;
+  font-variant-numeric: tabular-nums;
+  min-height: 1.4rem;
+}
+
+.muted { color: var(--muted); }
+
+.field {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.field > span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.field select,
+.field input[type='range'] {
+  width: 100%;
+  font: inherit;
+}
+
+.field select {
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background: #1f1f25;
+  color: var(--text);
+  border: 1px solid #3a3a44;
+}
+
+.field input[type='range'] {
+  accent-color: var(--accent);
+  height: 2rem;
+}
+
+.primary {
+  width: 100%;
+  padding: 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  border-radius: 0.6rem;
+  background: var(--accent);
+  color: #1b1b1f;
+  cursor: pointer;
+  /* Big enough to hit while holding an instrument. */
+  min-height: 3rem;
+}
+
+.primary:active { transform: translateY(1px); }
+
+.hint {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: #33301f;
+  color: #e8d9a8;
+  font-size: 0.85rem;
+}
+
+.meta {
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+}

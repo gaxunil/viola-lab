@@ -29,6 +29,7 @@ export default defineConfig({
       workbox: {
         // Samples are content-addressed by directory version (samples/viola-v1/...),
         // so they can be cached hard once they land.
+        // woff2 covers the self-hosted Bravura/Academico; m4a the viola samples.
         globPatterns: ['**/*.{js,css,html,woff2,m4a}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },

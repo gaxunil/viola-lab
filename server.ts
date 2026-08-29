@@ -30,6 +30,8 @@ function cacheControl(pathname: string): string {
   // Samples are versioned by directory (samples/viola-v1/...), so a new set is a
   // new URL. Safe to cache for a year.
   if (pathname.startsWith('/samples/')) return 'public, max-age=31536000, immutable'
+  // Self-hosted notation fonts, so the staff renders offline.
+  if (pathname.startsWith('/fonts/')) return 'public, max-age=31536000, immutable'
   // Vite emits hashed filenames into /assets.
   if (pathname.startsWith('/assets/')) return 'public, max-age=31536000, immutable'
   return 'no-cache'
