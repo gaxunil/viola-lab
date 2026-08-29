@@ -308,6 +308,24 @@ export const RHYTHM_PRESETS: readonly RhythmPreset[] = [
     note: 'All twelve eighths sounded, beamed three to a beat. The beams are doing the teaching here — the same twelve notes beamed in sixes or fours would be a different meter, and you would hear it immediately.',
   },
   {
+    id: '12-8-one-dotted-note',
+    name: 'One dotted note',
+    meter: TWELVE_EIGHT,
+    // A single dotted quarter on beat one, then straight eighths for the rest.
+    events: [n(DQ), ...rep(9, E)],
+    tags: ['compound', 'dotted', 'beginner'],
+    note: 'Straight eighths everywhere except beat one, which is held as a single dotted quarter. Play it against the previous example and listen: the dotted quarter is exactly the three eighths it replaced. That is the whole idea of the dot in compound time — it buys you one more half of what you already had.',
+  },
+  {
+    id: '12-8-dotted-note-on-beat-three',
+    name: 'A dotted note later in the bar',
+    meter: TWELVE_EIGHT,
+    // Same idea, moved onto the secondary accent, which feels quite different.
+    events: [...rep(6, E), n(DQ), ...rep(3, E)],
+    tags: ['compound', 'dotted'],
+    note: 'The same single dotted quarter, moved onto beat three. Beat three carries the secondary accent in 12/8, so holding it there feels settled, where holding beat one felt like a beginning.',
+  },
+  {
     id: '12-8-shuffle',
     name: 'Shuffle feel',
     meter: TWELVE_EIGHT,
