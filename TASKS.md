@@ -44,16 +44,16 @@ enforced by ESLint import rules and `tests/architecture.test.ts`.
 
 ## 4. First sound
 
-- [ ] `audio/context.ts` — single unlock owner, iOS gesture handling
-- [ ] `audio/session.ts` — `navigator.audioSession`, silent-switch mitigation
-- [ ] `audio/sink.ts` — cancellable per-run bus, limiter
-- [ ] `audio/voices/synthVoice.ts` — bowed-ish fallback voice
-- [ ] **Ship to her phone and verify the ring/silent switch** (highest risk)
+- [x] `audio/context.ts` — single unlock owner, iOS gesture handling
+- [x] `audio/session.ts` — `navigator.audioSession`, silent-switch mitigation
+- [x] `audio/sink.ts` — cancellable per-run bus, limiter
+- [x] `audio/voices/synthVoice.ts` — bowed-ish fallback voice
+- [ ] **Ship to her phone and verify the ring/silent switch** (highest risk) <- NEXT
 
 ## 5. Visual sync
 
-- [ ] `state/useTransport.ts` — rAF pulling `positionNow()`, memos to integers
-- [ ] Beat indicator component; verify the flash lands with the click
+- [x] `state/useTransport.ts` — rAF pulling `positionNow()`, memos to integers
+- [x] Beat indicator component; verify the flash lands with the click
 
 ## 6. Sampled viola
 
@@ -64,8 +64,8 @@ enforced by ESLint import rules and `tests/architecture.test.ts`.
 
 ## 7. Notation
 
-- [ ] VexFlow via `vexflow/core`, dynamic Bravura load
-- [ ] Alto clef staff; explicit beam `groups` from our meter, never the default
+- [x] VexFlow via `vexflow/core`, dynamic Bravura load
+- [x] Alto clef staff; explicit beam `groups` from our meter, never the default
 
 ## 8. Fingerboard UI
 
