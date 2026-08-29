@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dev-dist/
+.DS_Store
+*.local
+
+# Sample build pipeline: the raw Iowa EMS downloads (~42 MB of AIFF) are an input,
+# not an artifact. Only the processed .m4a under public/samples/ is committed.
+samples-src/

@@ -1,0 +1,38 @@
+# fly.toml — viola-lab, a static SolidJS PWA (no server state, no database).
+#
+# Deploy:  flyctl deploy --remote-only
+# Logs:    flyctl logs -a viola-lab
+# Status:  flyctl status -a viola-lab
+# URL:     https://viola-lab.fly.dev
+#
+# No secrets: the app is fully client-side. CI needs only FLY_API_TOKEN.
+
+app            = "viola-lab"
+primary_region = "ord"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[deploy]
+  strategy = "immediate"
+
+[http_service]
+  internal_port        = 8080
+  force_https          = true
+  # Stateless static site: scale to zero and wake on request. Costs a ~1s cold
+  # start on the first hit of a practice session; set min_machines_running = 1
+  # if that ever becomes annoying.
+  auto_stop_machines   = "stop"
+  auto_start_machines  = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval     = "30s"
+    method       = "GET"
+    path         = "/healthz"
+    timeout      = "5s"
+
+[[vm]]
+  size   = "shared-cpu-1x"
+  memory = "256mb"

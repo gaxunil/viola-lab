@@ -1,0 +1,54 @@
+name: Deploy viola-lab to fly.io
+
+# The app is fully client-side, so this job needs only FLY_API_TOKEN —
+# no app secrets exist and none touch GitHub.
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/**
+      - public/**
+      - index.html
+      - package.json
+      - bun.lock
+      - vite.config.ts
+      - vitest.config.ts
+      - tsconfig*.json
+      - server.ts
+      - Dockerfile
+      - fly.toml
+      - .github/workflows/deploy.yml
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun run test
+
+  deploy:
+    name: Deploy to fly.io
+    needs: [check]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Set up flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@1.6
+
+      - name: Deploy
+        run: flyctl deploy --remote-only --wait-timeout 180
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
