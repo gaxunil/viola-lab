@@ -12,7 +12,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
-    "test:render": "vitest run --project render"
+    "test:render": "vitest run --project render",
+    "inspect": "bun scripts/inspect.ts"
   },
   "engines": {
     "node": ">=22"
