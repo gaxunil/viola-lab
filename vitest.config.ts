@@ -17,10 +17,18 @@ export default defineConfig({
   test: {
     projects: [
       {
-        resolve: { alias },
+        // Without these conditions, solid-js resolves to its SERVER build in a
+        // node environment, where signals do not track at all and every
+        // reactivity assertion silently fails. Solid's reactive core itself is
+        // environment-free, so the browser/development build runs fine in node —
+        // it is only the DOM renderer that would need jsdom, and nothing in
+        // src/state renders.
+        resolve: { alias, conditions: ['development', 'browser'] },
+        ssr: { resolve: { conditions: ['development', 'browser'] } },
         test: {
           name: 'unit',
           environment: 'node',
+          server: { deps: { inline: [/solid-js/] } },
           include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
           exclude: ['src/**/*.render.test.ts'],
         },
