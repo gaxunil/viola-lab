@@ -1,0 +1,63 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shipped scale fingerings > are stable across weight changes 1`] = `
+"C major (from C3)
+  shifts=0 highestPosition=1
+   C3  IV:0  D3  IV:1  E3  IV:2  F3  IV:3  G3  III:0  A3  III:1  B3  III:2  C4  III:3  D4  II:0  E4  II:1  F4  II:2  G4  II:3  A4  I:0  B4  I:1  C5  I:2
+
+G major (from G3)
+  shifts=1 highestPosition=3
+   G3  III:0  A3  III:1  B3  III:2  C4  III:3  D4  II:0  E4  II:1  F♯4 II:2  G4  II:3  A4  I:0  B4  I:1  C5  I:2  D5  I:3  E5  I:4 |F♯5 I:3  G5  I:4
+
+D major (from D3)
+  shifts=0 highestPosition=1
+   D3  IV:1  E3  IV:2  F♯3 IV:3  G3  III:0  A3  III:1  B3  III:2  C♯4 III:3  D4  II:0  E4  II:1  F♯4 II:2  G4  II:3  A4  I:0  B4  I:1  C♯5 I:2  D5  I:3
+
+A major (from A3)
+  shifts=1 highestPosition=4
+   A3  III:1  B3  III:2  C♯4 III:3  D4  II:0  E4  II:1  F♯4 II:2  G♯4 II:3  A4  I:0  B4  I:1  C♯5 I:2  D5  I:3  E5  I:4 |F♯5 I:2  G♯5 I:3  A5  I:4
+
+F major (from F3)
+  shifts=1 highestPosition=2
+   F3  IV:3  G3  III:0  A3  III:1  B♭3 III:2  C4  III:3  D4  II:0  E4  II:1  F4  II:2  G4  II:3  A4  I:0  B♭4 I:1  C5  I:2  D5  I:3 |E5  I:3  F5  I:4
+
+B♭ major (from B♭3)
+  shifts=1 highestPosition=5
+   B♭3 III:2  C4  III:3  D4  II:0  E♭4 II:1  F4  II:2  G4  II:3  A4  I:0  B♭4 I:1  C5  I:2  D5  I:3  E♭5 I:4 |F5  I:1  G5  I:2  A5  I:3  B♭5 I:4
+
+E♭ major (from E♭3)
+  shifts=0 highestPosition=1
+   E♭3 IV:2  F3  IV:3  G3  III:0  A♭3 III:1  B♭3 III:2  C4  III:3  D4  II:0  E♭4 II:1  F4  II:2  G4  II:3  A♭4 II:4  B♭4 I:1  C5  I:2  D5  I:3  E♭5 I:4
+
+A natural minor (from A3)
+  shifts=1 highestPosition=4
+   A3  III:1  B3  III:2  C4  III:3  D4  II:0  E4  II:1  F4  II:2  G4  II:3  A4  I:0  B4  I:1  C5  I:2  D5  I:3  E5  I:4 |F5  I:2  G5  I:3  A5  I:4
+
+D natural minor (from D3)
+  shifts=0 highestPosition=1
+   D3  IV:1  E3  IV:2  F3  IV:3  G3  III:0  A3  III:1  B♭3 III:2  C4  III:3  D4  II:0  E4  II:1  F4  II:2  G4  II:3  A4  I:0  B♭4 I:1  C5  I:2  D5  I:3
+
+G natural minor (from G3)
+  shifts=1 highestPosition=3
+   G3  III:0  A3  III:1  B♭3 III:2  C4  III:3  D4  II:0  E♭4 II:1  F4  II:2  G4  II:3  A4  I:0  B♭4 I:1  C5  I:2  D5  I:3  E♭5 I:4 |F5  I:3  G5  I:4
+
+A harmonic minor (from A3)
+  shifts=1 highestPosition=4
+   A3  III:1  B3  III:2  C4  III:3  D4  II:0  E4  II:1  F4  II:2  G♯4 II:3  A4  I:0  B4  I:1  C5  I:2  D5  I:3  E5  I:4 |F5  I:2  G♯5 I:3  A5  I:4
+
+D harmonic minor (from D3)
+  shifts=0 highestPosition=1
+   D3  IV:1  E3  IV:2  F3  IV:3  G3  III:0  A3  III:1  B♭3 III:2  C♯4 III:3  D4  II:0  E4  II:1  F4  II:2  G4  II:3  A4  I:0  B♭4 I:1  C♯5 I:2  D5  I:3
+
+E harmonic minor (from E3)
+  shifts=0 highestPosition=1
+   E3  IV:2  F♯3 IV:3  G3  III:0  A3  III:1  B3  III:2  C4  III:3  D♯4 III:4  E4  II:1  F♯4 II:2  G4  II:3  A4  I:0  B4  I:1  C5  I:2  D♯5 I:3  E5  I:4
+
+A melodic minor (from A3)
+  shifts=1 highestPosition=4
+   A3  III:1  B3  III:2  C4  III:3  D4  II:0  E4  II:1  F♯4 II:2  G♯4 II:3  A4  I:0  B4  I:1  C5  I:2  D5  I:3  E5  I:4 |F♯5 I:2  G♯5 I:3  A5  I:4
+
+D melodic minor (from D3)
+  shifts=0 highestPosition=1
+   D3  IV:1  E3  IV:2  F3  IV:3  G3  III:0  A3  III:1  B3  III:2  C♯4 III:3  D4  II:0  E4  II:1  F4  II:2  G4  II:3  A4  I:0  B4  I:1  C♯5 I:2  D5  I:3"
+`;
