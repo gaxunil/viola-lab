@@ -1,0 +1,343 @@
+{
+  "name": "Iowa Viola 2012 (arco, ff)",
+  "license": "University of Iowa EMS — unrestricted use",
+  "sourceUrl": "https://theremin.music.uiowa.edu/MIS.html",
+  "formats": [
+    "m4a"
+  ],
+  "lowestMidi": 48,
+  "highestMidi": 93,
+  "maxShiftSemitones": 0,
+  "releaseSec": 0.15,
+  "attackSec": 0.008,
+  "coreZones": [
+    48,
+    55,
+    62,
+    69
+  ],
+  "zones": [
+    {
+      "midi": 48,
+      "pitch": "C3",
+      "string": "sulC",
+      "file": "c3.m4a",
+      "bytes": 21531
+    },
+    {
+      "midi": 49,
+      "pitch": "C#3",
+      "string": "sulC",
+      "file": "csharp3.m4a",
+      "bytes": 21609
+    },
+    {
+      "midi": 50,
+      "pitch": "D3",
+      "string": "sulC",
+      "file": "d3.m4a",
+      "bytes": 21586
+    },
+    {
+      "midi": 51,
+      "pitch": "D#3",
+      "string": "sulC",
+      "file": "dsharp3.m4a",
+      "bytes": 21557
+    },
+    {
+      "midi": 52,
+      "pitch": "E3",
+      "string": "sulC",
+      "file": "e3.m4a",
+      "bytes": 21663
+    },
+    {
+      "midi": 53,
+      "pitch": "F3",
+      "string": "sulC",
+      "file": "f3.m4a",
+      "bytes": 21587
+    },
+    {
+      "midi": 54,
+      "pitch": "F#3",
+      "string": "sulC",
+      "file": "fsharp3.m4a",
+      "bytes": 21658
+    },
+    {
+      "midi": 55,
+      "pitch": "G3",
+      "string": "sulG",
+      "file": "g3.m4a",
+      "bytes": 21593
+    },
+    {
+      "midi": 56,
+      "pitch": "G#3",
+      "string": "sulG",
+      "file": "gsharp3.m4a",
+      "bytes": 21598
+    },
+    {
+      "midi": 57,
+      "pitch": "A3",
+      "string": "sulG",
+      "file": "a3.m4a",
+      "bytes": 21595
+    },
+    {
+      "midi": 58,
+      "pitch": "A#3",
+      "string": "sulG",
+      "file": "asharp3.m4a",
+      "bytes": 21642
+    },
+    {
+      "midi": 59,
+      "pitch": "B3",
+      "string": "sulG",
+      "file": "b3.m4a",
+      "bytes": 21539
+    },
+    {
+      "midi": 60,
+      "pitch": "C4",
+      "string": "sulG",
+      "file": "c4.m4a",
+      "bytes": 21570
+    },
+    {
+      "midi": 61,
+      "pitch": "C#4",
+      "string": "sulG",
+      "file": "csharp4.m4a",
+      "bytes": 21580
+    },
+    {
+      "midi": 62,
+      "pitch": "D4",
+      "string": "sulD",
+      "file": "d4.m4a",
+      "bytes": 21688
+    },
+    {
+      "midi": 63,
+      "pitch": "D#4",
+      "string": "sulD",
+      "file": "dsharp4.m4a",
+      "bytes": 21595
+    },
+    {
+      "midi": 64,
+      "pitch": "E4",
+      "string": "sulD",
+      "file": "e4.m4a",
+      "bytes": 21609
+    },
+    {
+      "midi": 65,
+      "pitch": "F4",
+      "string": "sulD",
+      "file": "f4.m4a",
+      "bytes": 21650
+    },
+    {
+      "midi": 66,
+      "pitch": "F#4",
+      "string": "sulD",
+      "file": "fsharp4.m4a",
+      "bytes": 21642
+    },
+    {
+      "midi": 67,
+      "pitch": "G4",
+      "string": "sulD",
+      "file": "g4.m4a",
+      "bytes": 21715
+    },
+    {
+      "midi": 68,
+      "pitch": "G#4",
+      "string": "sulD",
+      "file": "gsharp4.m4a",
+      "bytes": 21711
+    },
+    {
+      "midi": 69,
+      "pitch": "A4",
+      "string": "sulA",
+      "file": "a4.m4a",
+      "bytes": 21668
+    },
+    {
+      "midi": 70,
+      "pitch": "A#4",
+      "string": "sulA",
+      "file": "asharp4.m4a",
+      "bytes": 21622
+    },
+    {
+      "midi": 71,
+      "pitch": "B4",
+      "string": "sulA",
+      "file": "b4.m4a",
+      "bytes": 21618
+    },
+    {
+      "midi": 72,
+      "pitch": "C5",
+      "string": "sulA",
+      "file": "c5.m4a",
+      "bytes": 21592
+    },
+    {
+      "midi": 73,
+      "pitch": "C#5",
+      "string": "sulA",
+      "file": "csharp5.m4a",
+      "bytes": 21578
+    },
+    {
+      "midi": 74,
+      "pitch": "D5",
+      "string": "sulA",
+      "file": "d5.m4a",
+      "bytes": 21591
+    },
+    {
+      "midi": 75,
+      "pitch": "D#5",
+      "string": "sulA",
+      "file": "dsharp5.m4a",
+      "bytes": 20374
+    },
+    {
+      "midi": 76,
+      "pitch": "E5",
+      "string": "sulA",
+      "file": "e5.m4a",
+      "bytes": 21597
+    },
+    {
+      "midi": 77,
+      "pitch": "F5",
+      "string": "sulA",
+      "file": "f5.m4a",
+      "bytes": 19668
+    },
+    {
+      "midi": 78,
+      "pitch": "F#5",
+      "string": "sulA",
+      "file": "fsharp5.m4a",
+      "bytes": 21606
+    },
+    {
+      "midi": 79,
+      "pitch": "G5",
+      "string": "sulA",
+      "file": "g5.m4a",
+      "bytes": 21564
+    },
+    {
+      "midi": 80,
+      "pitch": "G#5",
+      "string": "sulA",
+      "file": "gsharp5.m4a",
+      "bytes": 21606
+    },
+    {
+      "midi": 81,
+      "pitch": "A5",
+      "string": "sulA",
+      "file": "a5.m4a",
+      "bytes": 21649
+    },
+    {
+      "midi": 82,
+      "pitch": "A#5",
+      "string": "sulA",
+      "file": "asharp5.m4a",
+      "bytes": 20307
+    },
+    {
+      "midi": 83,
+      "pitch": "B5",
+      "string": "sulA",
+      "file": "b5.m4a",
+      "bytes": 20610
+    },
+    {
+      "midi": 84,
+      "pitch": "C6",
+      "string": "sulA",
+      "file": "c6.m4a",
+      "bytes": 21148
+    },
+    {
+      "midi": 85,
+      "pitch": "C#6",
+      "string": "sulA",
+      "file": "csharp6.m4a",
+      "bytes": 21685
+    },
+    {
+      "midi": 86,
+      "pitch": "D6",
+      "string": "sulA",
+      "file": "d6.m4a",
+      "bytes": 21740
+    },
+    {
+      "midi": 87,
+      "pitch": "D#6",
+      "string": "sulA",
+      "file": "dsharp6.m4a",
+      "bytes": 21598
+    },
+    {
+      "midi": 88,
+      "pitch": "E6",
+      "string": "sulA",
+      "file": "e6.m4a",
+      "bytes": 21602
+    },
+    {
+      "midi": 89,
+      "pitch": "F6",
+      "string": "sulA",
+      "file": "f6.m4a",
+      "bytes": 21537
+    },
+    {
+      "midi": 90,
+      "pitch": "F#6",
+      "string": "sulA",
+      "file": "fsharp6.m4a",
+      "bytes": 21588
+    },
+    {
+      "midi": 91,
+      "pitch": "G6",
+      "string": "sulA",
+      "file": "g6.m4a",
+      "bytes": 21566
+    },
+    {
+      "midi": 92,
+      "pitch": "G#6",
+      "string": "sulA",
+      "file": "gsharp6.m4a",
+      "bytes": 21622
+    },
+    {
+      "midi": 93,
+      "pitch": "A6",
+      "string": "sulA",
+      "file": "a6.m4a",
+      "bytes": 21589
+    }
+  ]
+}
