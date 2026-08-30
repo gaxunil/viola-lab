@@ -94,7 +94,7 @@ export function rangeOptions(
         requiresPosition: 0,
         staysInFirstPosition: false,
         shifts: 0,
-        reason: `${formatPitch(above)} is higher than this app covers`,
+        reason: `${formatPitch(above)} is higher than a viola comfortably reaches`,
       })
       continue
     }

@@ -141,3 +141,39 @@ describe('plans are internally consistent', () => {
     expect(plan.highestPosition).toBeGreaterThan(1)
   })
 })
+
+describe('three octaves', () => {
+  // Standard audition material for a player at this level, and the reason the
+  // practical ceiling is A6 rather than something tidier.
+  it('fits three octaves of C major, but only well above first position', () => {
+    const best = bestRange(major('C'), 3, { maxPosition: 12 })
+    expect(best).not.toBeNull()
+    expect(formatPitch(best!.start)).toBe('C3')
+    expect(formatPitch(best!.end)).toBe('C6')
+    expect(best!.requiresPosition).toBeGreaterThan(4)
+  })
+
+  it('needs more of the fingerboard the higher the key starts', () => {
+    const c = bestRange(major('C'), 3, { maxPosition: 12 })
+    const a = bestRange(major('A'), 3, { maxPosition: 12 })
+    expect(c).not.toBeNull()
+    expect(a).not.toBeNull()
+    expect(a!.requiresPosition).toBeGreaterThan(c!.requiresPosition)
+  })
+
+  it('refuses three octaves that run off the top of the instrument', () => {
+    // B flat major over three octaves would need B flat 6, past where a viola
+    // reaches and past where the sample set ends.
+    expect(bestRange(major('B', -1), 3, { maxPosition: 12 })).toBeNull()
+  })
+
+  it('will not pretend three octaves fit inside first position', () => {
+    // The default position ceiling is deliberately low; three octaves must fail
+    // against it rather than inventing an unplayable fingering.
+    expect(bestRange(major('A'), 3, { maxPosition: 5 })).toBeNull()
+  })
+
+  it('still fits two octaves of B flat, which three cannot', () => {
+    expect(bestRange(major('B', -1), 2)).not.toBeNull()
+  })
+})

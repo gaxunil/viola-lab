@@ -59,15 +59,18 @@ export const STRING_IDS: readonly StringId[] = ['I', 'II', 'III', 'IV']
 export const LOWEST_PITCH: Pitch = STRINGS.IV.open
 
 /**
- * A practical ceiling for a high-school player. The instrument goes higher, but
- * offering scales above this is not useful for the app's purpose.
+ * A practical ceiling.
  *
- * C6 is not arbitrary: it is what the standard two-octave scales actually need.
- * Starting each key on its lowest available root, B flat major reaches B flat 5
- * and B major reaches B5, so a ceiling of A5 would wrongly report those scales
- * as not fitting on the instrument. The sample set is sized to match.
+ * A6 is chosen by what the repertoire actually asks for. Two-octave scales from
+ * their lowest root reach B flat 5 and B5, so an A5 ceiling would wrongly report
+ * those as not fitting. THREE-octave scales — standard audition material for a
+ * player at this level — reach A6 from an A root. It is also exactly where the
+ * Iowa sample set ends on the A string, so the ceiling and the sounds agree.
+ *
+ * Three-octave B flat and B would need B flat 6 and B6, past both this ceiling
+ * and the samples, and are reported as out of range rather than faked.
  */
-export const HIGHEST_PRACTICAL: Pitch = p('C6')
+export const HIGHEST_PRACTICAL: Pitch = p('A6')
 
 export const stringAbove = (id: StringId): ViolaString | null =>
   STRINGS_HIGH_TO_LOW[STRINGS[id].index - 1] ?? null

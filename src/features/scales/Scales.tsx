@@ -12,6 +12,8 @@ import { createAudioSystem } from '@audio/index'
 import { createTransportState } from '@state/useTransport'
 import Fingerboard from '@components/fingerboard/Fingerboard'
 
+type Octaves = 1 | 2 | 3
+
 /** The roots a player is actually handed, in circle-of-fifths order. */
 const ROOTS = CIRCLE_OF_FIFTHS.filter((e) => Math.abs(e.fifths) <= 5).map((e) => e.major.tonic)
 
@@ -29,30 +31,60 @@ export default function Scales() {
 
   const [rootIndex, setRootIndex] = createSignal(ROOTS.findIndex((r) => r.letter === 'C'))
   const [typeId, setTypeId] = createSignal<ScaleTypeId>('major')
-  const [octaves, setOctaves] = createSignal<1 | 2>(2)
+  const [octaves, setOctaves] = createSignal<Octaves>(2)
   const [bpm, setBpm] = createSignal(72)
   const [droneOn, setDroneOn] = createSignal(false)
 
   const root = () => ROOTS[rootIndex()] ?? pc('C' as Letter)
 
+  /**
+   * How high up the fingerboard to allow the search to go.
+   *
+   * Two octaves live comfortably below 5th position. Three octaves simply do not
+   * — a three-octave A major tops out around 11th position on the A string, and
+   * capping the search lower would report a scale she is expected to play as
+   * impossible.
+   */
+  const maxPosition = () => (octaves() === 3 ? 12 : 5)
+
   const scale = createMemo(() => tryBuildScale(root(), SCALE_TYPES[typeId()]))
 
   const range = createMemo(() => {
     const s = scale()
-    return s ? bestRange(s, octaves()) : null
+    return s ? bestRange(s, octaves(), { maxPosition: maxPosition() }) : null
   })
 
   const plan = createMemo(() => {
     const s = scale()
     const r = range()
     if (!s || !r) return undefined
-    return fingerScale(s, { startOctave: r.start.octave, octaves: octaves() })
+    return fingerScale(s, {
+      startOctave: r.start.octave,
+      octaves: octaves(),
+      maxPosition: maxPosition(),
+    })
   })
 
+  /**
+   * Why the run does not fit where it does not fit.
+   *
+   * Deduplicated by reason: starting on B flat 4 and B flat 5 both fail for the
+   * same reason, and saying so three times is noise rather than teaching.
+   */
   const blocked = createMemo(() => {
     const s = scale()
     if (!s) return []
-    return rangeOptions(s, octaves()).filter((o) => !o.feasible && o.reason)
+
+    const seen = new Set<string>()
+    const out: Array<{ start: string; reason: string }> = []
+
+    for (const option of rangeOptions(s, octaves(), { maxPosition: maxPosition() })) {
+      if (option.feasible || !option.reason) continue
+      if (seen.has(option.reason)) continue
+      seen.add(option.reason)
+      out.push({ start: formatPitch(option.start), reason: option.reason })
+    }
+    return out
   })
 
   onCleanup(() => {
@@ -213,7 +245,7 @@ export default function Scales() {
           <For each={blocked()}>
             {(option) => (
               <>
-                From {formatPitch(option.start)}: {option.reason}.{' '}
+                Starting on {option.start}, {option.reason}.{' '}
               </>
             )}
           </For>
@@ -223,9 +255,13 @@ export default function Scales() {
       <div class="row">
         <label class="field">
           <span>Octaves</span>
-          <select value={octaves()} onChange={(e) => setOctaves(Number(e.currentTarget.value) as 1 | 2)}>
+          <select
+            value={octaves()}
+            onChange={(e) => setOctaves(Number(e.currentTarget.value) as Octaves)}
+          >
             <option value={1}>One</option>
             <option value={2}>Two</option>
+            <option value={3}>Three</option>
           </select>
         </label>
         <label class="field">
@@ -239,6 +275,13 @@ export default function Scales() {
           />
         </label>
       </div>
+
+      <Show when={!range()}>
+        <p class="teaching muted-block">
+          {octaves()} octaves will not fit on the instrument in this key — the top of the run goes
+          past where a viola reaches. Try two octaves, or a lower key.
+        </p>
+      </Show>
 
       <button class="primary" onClick={toggle} disabled={!range()}>
         {signals.isPlaying() ? 'Stop' : 'Play the scale'}
