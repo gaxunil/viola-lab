@@ -24,11 +24,16 @@ export default function Metronome() {
   const [bpm, setBpm] = createSignal(90)
   const [unlocked, setUnlocked] = createSignal(false)
 
+  const meter = (): Meter => COMMON_METERS[meterIndex()] ?? COMMON_METERS[0]!
+
+  // Must come AFTER `meter`: createMemo runs its function immediately, so
+  // declaring this first calls `meter()` while that const is still in the
+  // temporal dead zone. The ReferenceError lands mid-render, which aborts
+  // Solid's update cycle and leaves the whole reactive graph dead — every later
+  // click then silently does nothing.
   const counted = createMemo(() => countBar(meter()))
   /** The syllables belonging to one felt beat. */
   const countForBeat = (beat: number) => counted().filter((pulse) => pulse.beat === beat)
-
-  const meter = (): Meter => COMMON_METERS[meterIndex()] ?? COMMON_METERS[0]!
 
   const tempoLabel = createMemo(() => {
     const beatName = formatDuration(meter().beatUnit).replace(' note', '')
