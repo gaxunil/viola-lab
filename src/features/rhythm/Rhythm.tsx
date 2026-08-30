@@ -8,6 +8,7 @@ import { majorKeyAtFifths } from '@core/key/key'
 import { createAudioSystem } from '@audio/index'
 import { createTransportState } from '@state/useTransport'
 import Staff from '@components/notation/Staff'
+import { followStaff } from '@components/notation/useStaffFollow'
 
 /**
  * Hear a rhythm, then read it.
@@ -33,6 +34,7 @@ export default function Rhythm() {
   // Looping is how you actually learn a rhythm — you play it round and round
   // until it stops needing counting.
   const [loop, setLoop] = createSignal(true)
+  const [staffHost, setStaffHost] = createSignal<HTMLDivElement | undefined>()
 
   const meter = (): Meter => COMMON_METERS[meterIndex()] ?? COMMON_METERS[0]!
 
@@ -47,6 +49,13 @@ export default function Rhythm() {
   // The notation key is immaterial for an unpitched rhythm drill, but the staff
   // still needs one; C major keeps the stave clean of accidentals.
   const notationKey = majorKeyAtFifths(0)
+
+  followStaff({
+    host: staffHost,
+    index: () => signals.uiIndex(),
+    total: () => preset()?.events.length ?? 0,
+    active: () => signals.isPlaying(),
+  })
 
   onCleanup(() => {
     signals.dispose()
@@ -118,13 +127,13 @@ export default function Rhythm() {
       <Show when={preset()} keyed>
         {(current) => (
           <>
-            <div class="staff-wrap">
+            <div class="staff-wrap" ref={setStaffHost}>
               <Staff
                 events={current.events}
                 meter={current.meter}
                 key={notationKey}
                 showTimeSignature={true}
-                highlightIndex={signals.isPlaying() ? signals.noteIndex() : null}
+                highlightIndex={signals.isPlaying() ? signals.uiIndex() : null}
               />
             </div>
             <p class="teaching">{current.note}</p>

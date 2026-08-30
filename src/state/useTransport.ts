@@ -46,6 +46,8 @@ export interface TransportSignals {
   readonly bar: Accessor<number>
   readonly accent: Accessor<AccentLevel>
   readonly noteIndex: Accessor<number | null>
+  /** Index into the NOTATED elements, which is what the UI highlights. */
+  readonly uiIndex: Accessor<number | null>
   readonly isCountIn: Accessor<boolean>
   /** The raw sample, updated every frame, for sub-beat animation. */
   readonly position: Accessor<TransportPosition | null>
@@ -130,6 +132,7 @@ export function createTransportState(
     bar: createMemo(() => position()?.bar ?? -1),
     accent: createMemo<AccentLevel>(() => position()?.accent ?? 'weak'),
     noteIndex: createMemo(() => position()?.eventIndex ?? null),
+    uiIndex: createMemo(() => position()?.uiIndex ?? null),
     isCountIn: createMemo(() => position()?.isCountIn ?? false),
     position,
     dispose,

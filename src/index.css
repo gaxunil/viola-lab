@@ -327,7 +327,7 @@ header { margin-bottom: 1.5rem; }
 /* The meter explained in words, directly under the picker. Plain language does
    the teaching; the textbook term sits quietly at the bottom of the panel. */
 .meter-explain {
-  margin: -0.35rem 0 1rem;
+  margin: 0 0 1.1rem;
   font-size: 0.9rem;
   color: var(--accent);
 }
@@ -433,3 +433,52 @@ header { margin-bottom: 1.5rem; }
   font-size: 1rem;
   line-height: 0.6;
 }
+
+/* Beats as groups of subdivisions. The shape of the row IS the meter: 12/8
+   reads as four clusters of three, which is exactly what distinguishes it from
+   4/4 — and four bare dots would not. */
+.beat-groups {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  min-height: 2.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.beat-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  /* A visible boundary per beat, so four groups of three read as four groups
+     rather than as twelve loose dots. */
+  border: 1px solid #3a3a44;
+  background: #1f1f25;
+  transition: background-color 70ms ease-out, border-color 70ms ease-out;
+}
+
+.beat-group.active {
+  background: rgba(200, 164, 92, 0.16);
+  border-color: var(--accent);
+}
+
+.pip {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  /* Bright enough to read at rest: the shape of the row is the lesson, and it
+     should be legible before anything is playing. */
+  background: #6d6d7d;
+  transition: background-color 70ms ease-out, transform 70ms ease-out;
+}
+
+/* The first pip of a beat is the beat itself, so it is the bigger one. */
+.pip.head { width: 0.8rem; height: 0.8rem; background: #9a9aab; }
+.beat-group.strong .pip.head { width: 1rem; height: 1rem; }
+.beat-group.medium .pip.head { width: 0.9rem; height: 0.9rem; }
+
+.beat-group.active .pip.head { background: var(--accent); transform: scale(1.15); }
+.beat-group.active .pip { background: rgba(200, 164, 92, 0.55); }

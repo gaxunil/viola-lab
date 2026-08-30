@@ -58,18 +58,40 @@ export default function Metronome() {
     <section class="panel">
       <h2>Metronome</h2>
 
-      <div class="beats" role="group" aria-label="beats in the bar">
-        <For each={meter().accents}>
-          {(accent, index) => (
+      {/*
+        One group per felt beat, with a pip for each subdivision inside it.
+        Four dots alone is a true description of 12/8 and a useless one — it
+        looks identical to 4/4. Drawing the three pips inside each beat is the
+        difference between the two, made visible.
+      */}
+      <div class="beat-groups" role="group" aria-label="beats in the bar">
+        {/*
+          How many pips a beat gets.
+
+          In a compound or asymmetric meter the grouping already counts the
+          notated pulses inside each beat — three eighths in 12/8, 2+2+3 in 7/8.
+          In a SIMPLE meter the notated pulse IS the beat, so the grouping says
+          1; drawing one pip would then contradict the caption above, which
+          promises a beat "split into two". Two pips is what a simple beat
+          actually divides into, and it makes the simple/compound distinction
+          the visible difference between a pair and a triple.
+        */}
+        <For each={meter().grouping.map((g) => (g === 1 ? 2 : g))}>
+          {(group, beat) => (
             <span
-              class="dot"
+              class="beat-group"
               classList={{
-                active: signals.beat() === index(),
-                strong: accent === 'strong',
-                medium: accent === 'medium',
+                active: signals.isPlaying() && signals.beat() === beat(),
+                strong: meter().accents[beat()] === 'strong',
+                medium: meter().accents[beat()] === 'medium',
               }}
-              aria-hidden="true"
-            />
+            >
+              <For each={Array.from({ length: group })}>
+                {(_, pulse) => (
+                  <span class="pip" classList={{ head: pulse() === 0 }} aria-hidden="true" />
+                )}
+              </For>
+            </span>
           )}
         </For>
       </div>
@@ -92,6 +114,8 @@ export default function Metronome() {
         </select>
       </label>
 
+      <p class="meter-explain">{meter().description}</p>
+
       <label class="field">
         <span>Tempo — {tempoLabel()}</span>
         <input
@@ -113,8 +137,6 @@ export default function Metronome() {
           it mutes this kind of sound even when the volume is up.
         </p>
       </Show>
-
-      <p class="meter-explain">{meter().description}</p>
 
       <p class="meta">
         {meter().formalName} · grouped {meter().grouping.join('+')}

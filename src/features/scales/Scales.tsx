@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import { type Letter, type PitchClass, formatPitch, pc, toMidi } from '@core/pitch/pitch'
 import { CIRCLE_OF_FIFTHS } from '@core/key/key'
 import { SCALE_TYPES, SCALE_TYPE_LIST, type ScaleTypeId } from '@core/scale/scaleTypes'
@@ -12,6 +12,7 @@ import { createAudioSystem } from '@audio/index'
 import { createTransportState } from '@state/useTransport'
 import Fingerboard from '@components/fingerboard/Fingerboard'
 import Staff from '@components/notation/Staff'
+import { followStaff } from '@components/notation/useStaffFollow'
 import { note } from '@core/rhythm/bar'
 import { realize } from '@core/scale/scale'
 
@@ -159,7 +160,7 @@ export default function Scales() {
    */
   const nowPlaying = createMemo(() => {
     const current = plan()
-    const index = signals.noteIndex()
+    const index = signals.uiIndex()
     if (!current || index === null || !signals.isPlaying()) return null
 
     const fingered = current.notes[index]
@@ -192,38 +193,11 @@ export default function Scales() {
    */
   const [staffHost, setStaffHost] = createSignal<HTMLDivElement | undefined>()
 
-  /**
-   * The Staff component brings its own horizontally-scrolling wrapper, so the
-   * element that actually scrolls is a descendant rather than the host. Find
-   * whichever one really overflows instead of assuming.
-   */
-  function scrollerWithin(host: HTMLElement): HTMLElement | null {
-    if (host.scrollWidth > host.clientWidth) return host
-    for (const child of host.querySelectorAll<HTMLElement>('*')) {
-      if (child.scrollWidth > child.clientWidth + 1) return child
-    }
-    return null
-  }
-
-  createEffect(() => {
-    const host = staffHost()
-    const index = signals.noteIndex()
-    const current = notated()
-    if (!host || !current || index === null || !signals.isPlaying()) return
-
-    const total = current.pitches.length
-    if (total === 0) return
-
-    const scroller = scrollerWithin(host)
-    if (!scroller) return // it all fits; nothing to follow
-
-    const overflow = scroller.scrollWidth - scroller.clientWidth
-    if (overflow <= 0) return
-
-    // Centre the note, clamped so the ends do not swing past the music.
-    const target =
-      (index / Math.max(1, total - 1)) * scroller.scrollWidth - scroller.clientWidth / 2
-    scroller.scrollTo({ left: Math.max(0, Math.min(overflow, target)), behavior: 'smooth' })
+  followStaff({
+    host: staffHost,
+    index: () => signals.uiIndex(),
+    total: () => notated()?.pitches.length ?? 0,
+    active: () => signals.isPlaying(),
   })
 
   const blocked = createMemo(() => {
@@ -428,7 +402,7 @@ export default function Scales() {
               key={current.key}
               pitches={current.pitches}
               showTimeSignature={false}
-              highlightIndex={signals.isPlaying() ? signals.noteIndex() : null}
+              highlightIndex={signals.isPlaying() ? signals.uiIndex() : null}
             />
           </div>
         )}
@@ -443,7 +417,7 @@ export default function Scales() {
             <Fingerboard
               {...(scale() ? { scale: scale()! } : {})}
               plan={current}
-              highlightIndex={signals.isPlaying() ? signals.noteIndex() : null}
+              highlightIndex={signals.isPlaying() ? signals.uiIndex() : null}
             />
             <p class="legend">
               <span class="key-dot filled" /> played here

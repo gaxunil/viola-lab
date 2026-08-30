@@ -399,3 +399,48 @@ describe('lifecycle', () => {
     expect(ticker.isRunning).toBe(false)
   })
 })
+
+describe('what the UI highlights', () => {
+  /**
+   * A real bug this pins. A score interleaves clicks and count-in beats with the
+   * notes, so an event's id runs ahead of its position in the written music: in
+   * a 12/8 exercise with a count-in the first note is event 5 but notated
+   * element 0. Highlighting by event id offset the animation by exactly the
+   * count-in, which looked like the loop restarting in the wrong place.
+   */
+  it('reports the notated index, not the event id', () => {
+    const m = meter(12, 8)
+    const events = [note(dur('quarter', 1)), ...Array.from({ length: 9 }, () => note(dur('eighth')))]
+    const score = compileRhythm({ meter: m, events, withClick: true, countInBars: 1 })
+
+    const firstNote = score.events.find((e) => e.payload.type === 'note')
+    expect(firstNote).toBeDefined()
+    // The id counts four count-in clicks plus the downbeat click before it.
+    expect(firstNote!.id).toBeGreaterThan(0)
+    expect(firstNote!.uiIndex).toBe(0)
+
+    const { clock, ticker, transport } = harness()
+    transport.load(score, tempoFromBeat(90, m.beatUnit))
+    transport.start()
+
+    // Step into the body, past the count-in bar.
+    clock.advance(60 / 90 * 4 + 0.05)
+    ticker.fire()
+
+    const position = transport.positionNow()
+    expect(position).not.toBeNull()
+    expect(position!.uiIndex).toBe(0)
+    expect(position!.eventIndex).toBe(firstNote!.id)
+    expect(position!.uiIndex).not.toBe(position!.eventIndex)
+  })
+
+  it('still reports something for a metronome, which has no notes at all', () => {
+    const { clock, ticker, transport } = harness()
+    transport.load(compileMetronome({ meter: meter(4, 4), bars: 2 }), constantTempo(120))
+    transport.start()
+    clock.advance(0.1)
+    ticker.fire()
+
+    expect(transport.positionNow()?.uiIndex).toBe(0)
+  })
+})

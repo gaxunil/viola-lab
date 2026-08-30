@@ -48,8 +48,18 @@ export interface TransportPosition {
   /** 0-based felt beat: a dotted quarter in 12/8. */
   readonly beatInBar: number
   readonly accent: AccentLevel
-  /** Index of the event currently sounding, for highlighting. */
+  /** Id of the event currently sounding. Counts clicks and count-in beats. */
   readonly eventIndex: number | null
+  /**
+   * Which NOTATED element is sounding — the index the UI highlights.
+   *
+   * Deliberately separate from eventIndex. A score interleaves clicks and
+   * count-in beats with the notes, so the event id runs ahead of the position in
+   * the written music: in a 12/8 exercise with a count-in the first note is
+   * event 5 but notated element 0. Highlighting by event id offsets the
+   * animation by exactly the count-in, which is a bug this app had.
+   */
+  readonly uiIndex: number | null
   readonly isCountIn: boolean
   readonly loopIteration: number
 }
@@ -178,21 +188,37 @@ export function createTransport(deps: TransportDeps): Transport {
       pulseInBar: Math.floor(inBar / meter.pulseTicks),
       beatInBar: beat,
       accent: meter.accents[beat] ?? 'weak',
-      eventIndex: soundingIndex(tick),
+      eventIndex: soundingEvent(tick, false)?.id ?? null,
+      uiIndex: uiIndexAt(tick),
       isCountIn,
       loopIteration,
     }
   }
 
-  function soundingIndex(tick: number): number | null {
+  /** Any audible event sounding at a tick — a click counts. */
+  function soundingEvent(tick: number, notesOnly: boolean): MusicalEvent | null {
     if (!score) return null
     let found: MusicalEvent | null = null
     for (const event of score.events) {
       if (event.payload.type === 'cue') continue
+      if (notesOnly && event.payload.type !== 'note') continue
       if (event.tick > tick) break
       if (tick < event.tick + event.durationTicks) found = event
     }
-    return found ? found.id : null
+    return found
+  }
+
+  /**
+   * Which notated element the UI should highlight.
+   *
+   * Notes first, because in an exercise the clicks are accompaniment rather than
+   * the written music. A pure metronome has no notes at all, so it falls back to
+   * whatever is sounding — there, the click IS the notation.
+   */
+  function uiIndexAt(tick: number): number | null {
+    const note = soundingEvent(tick, true)
+    if (note) return note.uiIndex ?? null
+    return soundingEvent(tick, false)?.uiIndex ?? null
   }
 
   return {
