@@ -22,7 +22,7 @@ export interface StaffFollowOptions {
   readonly active: Accessor<boolean>
 }
 
-function scrollerWithin(host: HTMLElement): HTMLElement | null {
+function findScroller(host: HTMLElement): HTMLElement | null {
   if (host.scrollWidth > host.clientWidth + 1) return host
   for (const child of host.querySelectorAll<HTMLElement>('*')) {
     if (child.scrollWidth > child.clientWidth + 1) return child
@@ -31,6 +31,21 @@ function scrollerWithin(host: HTMLElement): HTMLElement | null {
 }
 
 export function followStaff(o: StaffFollowOptions): void {
+  /**
+   * Cached, because this runs once per note and querySelectorAll('*') over a
+   * rendered stave is not cheap at practice tempo. Invalidated whenever the
+   * cached node stops overflowing, which covers a re-render or a resize.
+   */
+  let cached: HTMLElement | null = null
+
+  const scrollerWithin = (host: HTMLElement): HTMLElement | null => {
+    if (cached && cached.isConnected && cached.scrollWidth > cached.clientWidth + 1) {
+      return cached
+    }
+    cached = findScroller(host)
+    return cached
+  }
+
   createEffect(() => {
     const host = o.host()
     const index = o.index()

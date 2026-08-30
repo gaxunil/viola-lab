@@ -240,6 +240,19 @@ function render(host: HTMLDivElement, s: StaffSnapshot): void {
   }
 }
 
+/**
+ * Label each drawn note with its index in the events array.
+ *
+ * VexFlow emits one group per StaveNote in document order, including rests, and
+ * the adapter builds them in event order — so the Nth group is the Nth event.
+ */
+function tagNotes(element: HTMLElement): void {
+  const groups = element.querySelectorAll('.vf-stavenote')
+  groups.forEach((group, index) => {
+    group.setAttribute('data-note-index', String(index))
+  })
+}
+
 export default function Staff(props: StaffProps): JSX.Element {
   let host: HTMLDivElement | undefined
   let disposed = false
@@ -247,6 +260,15 @@ export default function Staff(props: StaffProps): JSX.Element {
     disposed = true
   })
 
+  /**
+   * Structure and highlight are deliberately two separate effects.
+   *
+   * Rebuilding the notation means constructing every StaveNote, formatting the
+   * voice and drawing a fresh SVG. Doing that per highlighted note is roughly
+   * ten full re-renders a second at practice tempo, which is enough to lock up
+   * a tab — it did. The structural effect therefore does NOT read
+   * highlightIndex, so following playback costs one class change per note.
+   */
   createEffect(() => {
     const snapshot: StaffSnapshot = {
       events: props.events,
@@ -257,7 +279,7 @@ export default function Staff(props: StaffProps): JSX.Element {
       bowings: props.bowings,
       clef: props.clef ?? 'alto',
       showTimeSignature: props.showTimeSignature ?? true,
-      highlightIndex: props.highlightIndex ?? null,
+      highlightIndex: null,
       width: props.width,
     }
 
@@ -268,6 +290,7 @@ export default function Staff(props: StaffProps): JSX.Element {
       element.replaceChildren()
       try {
         render(element, snapshot)
+        tagNotes(element)
         delete element.dataset.staffError
       } catch {
         // A malformed passage must not take the page down with it. The staff
@@ -277,6 +300,18 @@ export default function Staff(props: StaffProps): JSX.Element {
         element.dataset.staffError = 'true'
       }
     })
+  })
+
+  // Following playback: one attribute change, no re-render.
+  createEffect(() => {
+    const index = props.highlightIndex ?? null
+    const element = host
+    if (disposed || element === undefined) return
+
+    for (const node of element.querySelectorAll('[data-note-index]')) {
+      const isCurrent = node.getAttribute('data-note-index') === String(index)
+      node.classList.toggle('is-sounding', isCurrent)
+    }
   })
 
   // Mobile first: a bar of sixteenths is wider than a phone, so the staff gets

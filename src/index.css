@@ -545,7 +545,14 @@ header { margin-bottom: 1.5rem; }
   text-align: center;
 }
 
-.count.beat { font-weight: 700; }
+.count.beat {
+  font-weight: 700;
+  /* A tick under the numbers, so where the beat lands is visible even when the
+     syllable itself is not being played. */
+  border-bottom: 2px solid #4a4a55;
+  padding-bottom: 0.1rem;
+}
+.count.beat.strike { border-bottom-color: var(--accent); }
 .count.strike { color: var(--text); }
 .count.hold { color: #63636f; }
 .count.silent { color: #4a4a55; text-decoration: line-through; }
@@ -593,4 +600,13 @@ header { margin-bottom: 1.5rem; }
   background: var(--accent);
   border-radius: 0.3rem;
   font-weight: 700;
+}
+
+/* The sounding note on the staff. Applied as a class on the already-drawn
+   group, so following playback never re-renders the notation. */
+.staff-canvas .vf-stavenote.is-sounding path,
+.staff-canvas .vf-stavenote.is-sounding text,
+.staff-canvas .vf-stavenote.is-sounding rect {
+  fill: #d4491f;
+  stroke: #d4491f;
 }

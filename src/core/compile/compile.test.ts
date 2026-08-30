@@ -303,3 +303,92 @@ describe('the fingering and the playback must agree', () => {
     expect(plan.notes.map((n) => n.pitch)).toEqual(pitches)
   })
 })
+
+describe('looping a scale', () => {
+  it('carries no loop unless asked', () => {
+    const scale = buildScale(pc('C'), SCALE_TYPES.major)
+    const { score } = compileScale({ scale, startOctave: 3, octaves: 2 })
+    expect(score.loop).toBeUndefined()
+  })
+
+  it('loops the run only, so a count-in is heard once', () => {
+    const scale = buildScale(pc('C'), SCALE_TYPES.major)
+    const { score } = compileScale({
+      scale,
+      startOctave: 3,
+      octaves: 2,
+      direction: 'up-down',
+      countInBars: 1,
+      loop: true,
+    })
+
+    expect(score.loop).toBeDefined()
+    expect(score.loop!.startTick).toBe(score.bodyStartTick)
+    expect(score.loop!.endTick).toBe(score.lengthTicks)
+    // The count-in sits before the loop and is therefore played once.
+    expect(score.bodyStartTick).toBeGreaterThan(0)
+  })
+
+  it('keeps every note inside the loop it repeats', () => {
+    const scale = buildScale(pc('D'), SCALE_TYPES.major)
+    const { score } = compileScale({
+      scale,
+      startOctave: 3,
+      octaves: 2,
+      direction: 'up-down',
+      loop: true,
+    })
+
+    for (const event of noteEvents(score)) {
+      expect(event.tick).toBeGreaterThanOrEqual(score.loop!.startTick)
+      expect(event.tick).toBeLessThan(score.loop!.endTick)
+    }
+  })
+})
+
+describe('where the beat lands is audible', () => {
+  /**
+   * A weak BEAT is still a beat. In 12/8 the accent pattern is
+   * strong-weak-medium-weak, so beats two and four are marked weak — and
+   * sounding them exactly like the subdivisions around them hides the pulse,
+   * which is the one thing a rhythm exercise is for.
+   */
+  it('gives four tiers: downbeat, secondary accent, other beats, offbeats', () => {
+    const score = compileRhythm({
+      meter: meter(12, 8),
+      events: Array.from({ length: 12 }, () => note(dur('eighth'))),
+      withClick: false,
+    })
+    const velocities = noteEvents(score).map((e) =>
+      e.payload.type === 'note' ? e.payload.velocity : 0,
+    )
+
+    const downbeat = velocities[0]!
+    const secondary = velocities[6]!
+    const otherBeat = velocities[3]!
+    const offbeat = velocities[1]!
+
+    expect(downbeat).toBeGreaterThan(secondary)
+    expect(secondary).toBeGreaterThan(otherBeat)
+    expect(otherBeat).toBeGreaterThan(offbeat)
+
+    // Beats two and four match each other, and neither sounds like an offbeat.
+    expect(velocities[9]).toBe(otherBeat)
+    expect(velocities[3]).not.toBe(velocities[4])
+  })
+
+  it('marks every beat above every offbeat, in simple meters too', () => {
+    const score = compileRhythm({
+      meter: meter(4, 4),
+      events: Array.from({ length: 8 }, () => note(dur('eighth'))),
+      withClick: false,
+    })
+    const velocities = noteEvents(score).map((e) =>
+      e.payload.type === 'note' ? e.payload.velocity : 0,
+    )
+
+    const onBeats = velocities.filter((_, i) => i % 2 === 0)
+    const offBeats = velocities.filter((_, i) => i % 2 === 1)
+    expect(Math.min(...onBeats)).toBeGreaterThan(Math.max(...offBeats))
+  })
+})

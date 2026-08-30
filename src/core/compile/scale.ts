@@ -23,6 +23,8 @@ export interface ScaleScoreOptions {
   /** The meter the run is counted in. Four beats per bar unless told otherwise. */
   readonly meter?: Meter
   readonly countInBars?: number
+  /** Repeat the run indefinitely, for practising against a drone. */
+  readonly loop?: boolean
 }
 
 /**
@@ -36,6 +38,7 @@ export function compilePitchRun(o: {
   noteValue: Duration
   meter: Meter
   countInBars?: number
+  loop?: boolean
 }): Score {
   const step = ticksFromWholeNotes(durationValue(o.noteValue))
   const countInBars = o.countInBars ?? 0
@@ -69,7 +72,15 @@ export function compilePitchRun(o: {
 
   const lengthTicks = ticks(bodyStartTick + o.pitches.length * step)
 
-  return makeScore({ meter: o.meter, lengthTicks, bodyStartTick, events })
+  return makeScore({
+    meter: o.meter,
+    lengthTicks,
+    bodyStartTick,
+    events,
+    // The loop covers the run only, so a count-in is heard once and the scale
+    // then repeats straight into itself the way it is practised.
+    ...(o.loop ? { loop: { startTick: bodyStartTick, endTick: lengthTicks } } : {}),
+  })
 }
 
 export function compileScale(o: ScaleScoreOptions): { score: Score; pitches: Pitch[] } {
@@ -87,6 +98,7 @@ export function compileScale(o: ScaleScoreOptions): { score: Score; pitches: Pit
     noteValue,
     meter,
     ...(o.countInBars === undefined ? {} : { countInBars: o.countInBars }),
+    ...(o.loop === undefined ? {} : { loop: o.loop }),
   })
 
   return { score, pitches }

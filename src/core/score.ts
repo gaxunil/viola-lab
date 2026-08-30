@@ -59,12 +59,30 @@ export interface Score {
   readonly loop?: ScoreLoop
 }
 
-/** Velocity for each accent level, used by clicks and by accented notes. */
+/**
+ * Velocity for each accent level.
+ *
+ * The spread is deliberately wide. A rhythm exercise is largely about hearing
+ * WHERE the beat is, and a beat that is only slightly louder than the notes
+ * around it does not teach that on a phone speaker in a room.
+ */
 export const ACCENT_VELOCITY: Readonly<Record<AccentLevel, number>> = {
   strong: 1,
-  medium: 0.78,
-  weak: 0.55,
+  medium: 0.82,
+  weak: 0.66,
 }
+
+/**
+ * A note that lands between the beats.
+ *
+ * Distinct from a WEAK BEAT, which is still a beat. In 12/8 the accent pattern
+ * is strong-weak-medium-weak, so beats two and four are marked weak — but they
+ * are where the pulse is, and sounding them exactly like the subdivisions
+ * around them hides the thing a rhythm exercise is trying to teach. Four tiers,
+ * matching how the bar is actually felt: downbeat, secondary accent, other
+ * beats, then everything off the beat.
+ */
+export const OFFBEAT_VELOCITY = 0.42
 
 /**
  * Assemble a score, sorting the events and assigning their ids.

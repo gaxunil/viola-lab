@@ -77,6 +77,7 @@ export default function Scales() {
   const [octaves, setOctaves] = createSignal<Octaves>(2)
   const [bpm, setBpm] = createSignal(72)
   const [droneOn, setDroneOn] = createSignal(false)
+  const [loop, setLoop] = createSignal(false)
 
   const rootChoice = () => ROOTS[rootIndex()]
   const root = () => rootChoice()?.tonic ?? pc('C' as Letter)
@@ -232,6 +233,7 @@ export default function Scales() {
       direction: DIRECTION,
       noteValue: dur('eighth'),
       meter: meter(4, 4),
+      loop: loop(),
     })
     await system.play(score, tempoFromBeat(bpm(), dur('quarter')))
   }
@@ -553,6 +555,22 @@ export default function Scales() {
           past where a viola reaches. Try two octaves, or a lower key.
         </p>
       </Show>
+
+      <label class="checkbox">
+        <input
+          type="checkbox"
+          checked={loop()}
+          onChange={(e) => {
+            setLoop(e.currentTarget.checked)
+            // Take effect now rather than on the next press.
+            if (signals.isPlaying()) {
+              system.stop()
+              void play()
+            }
+          }}
+        />
+        <span>Loop it — good for playing along, or against the drone</span>
+      </label>
 
       <button class="primary" onClick={toggle} disabled={!range()}>
         {signals.isPlaying() ? 'Stop' : 'Play the scale'}

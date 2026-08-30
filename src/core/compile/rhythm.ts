@@ -20,7 +20,13 @@ import {
   resolveTies,
   validateBar,
 } from '../rhythm/bar'
-import { ACCENT_VELOCITY, type MusicalEvent, type Score, makeScore } from '../score'
+import {
+  ACCENT_VELOCITY,
+  OFFBEAT_VELOCITY,
+  type MusicalEvent,
+  type Score,
+  makeScore,
+} from '../score'
 import type { GridPoint } from '../scoring/gridTypes'
 
 /** Middle-register D, comfortable on the viola and easy to hear against a click. */
@@ -82,7 +88,7 @@ export function compileRhythm(o: RhythmScoreOptions): Score {
       payload: {
         type: 'note',
         midi,
-        velocity: accent ? ACCENT_VELOCITY[accent] : ACCENT_VELOCITY.weak,
+        velocity: accent ? ACCENT_VELOCITY[accent] : OFFBEAT_VELOCITY,
       },
       uiIndex: span.sourceIndices[0] ?? 0,
     })

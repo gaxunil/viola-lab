@@ -2,7 +2,7 @@ import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import { COMMON_METERS, type Meter } from '@core/rhythm/meter'
 import { type RhythmPreset, presetsForMeter } from '@core/rhythm/presets'
 import { formatDuration } from '@core/rhythm/duration'
-import { countRhythm, countingAdvice, pulseIndexAt } from '@core/rhythm/counting'
+import { countBar, countRhythm, countingAdvice, pulseIndexAt } from '@core/rhythm/counting'
 import { compileRhythm } from '@core/compile/rhythm'
 import { clampBpm, tempoFromBeat } from '@core/tempo'
 import { majorKeyAtFifths } from '@core/key/key'
@@ -40,6 +40,10 @@ export default function Rhythm() {
   const meter = (): Meter => COMMON_METERS[meterIndex()] ?? COMMON_METERS[0]!
 
   const presets = createMemo(() => presetsForMeter(meter()))
+
+  const counted = createMemo(() => countBar(meter()))
+  /** The syllables belonging to one felt beat. */
+  const countForBeat = (beat: number) => counted().filter((pulse) => pulse.beat === beat)
 
   const preset = createMemo<RhythmPreset | null>(() => {
     const list = presets()
@@ -244,18 +248,31 @@ export default function Rhythm() {
         )}
       </Show>
 
-      <div class="beats" role="group" aria-label="beats in the bar">
-        <For each={meter().accents}>
-          {(accent, index) => (
+      {/* The same beat display as the metronome: one capsule per beat, a pip
+          per subdivision, so where the beat lands is visible and not just
+          audible. */}
+      <div class="beat-groups" role="group" aria-label="beats in the bar">
+        <For each={meter().grouping}>
+          {(_group, beat) => (
             <span
-              class="dot"
+              class="beat-group"
               classList={{
-                active: signals.isPlaying() && signals.beat() === index(),
-                strong: accent === 'strong',
-                medium: accent === 'medium',
+                active: signals.isPlaying() && signals.beat() === beat(),
+                strong: meter().accents[beat()] === 'strong',
+                medium: meter().accents[beat()] === 'medium',
               }}
-              aria-hidden="true"
-            />
+            >
+              <For each={countForBeat(beat())}>
+                {(pulse, i) => (
+                  <span class="pulse">
+                    <span class="pip" classList={{ head: i() === 0 }} aria-hidden="true" />
+                    <span class="say" classList={{ head: i() === 0 }}>
+                      {pulse.say}
+                    </span>
+                  </span>
+                )}
+              </For>
+            </span>
           )}
         </For>
       </div>
