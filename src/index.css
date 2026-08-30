@@ -249,3 +249,77 @@ header { margin-bottom: 1.5rem; }
 }
 
 .checkbox input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+
+.row { display: flex; gap: 0.75rem; }
+.row .field { flex: 1; min-width: 0; }
+
+.scale-name {
+  margin: 0.25rem 0 1rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+/* The whole/half step strip: notes with the interval between them, so the
+   pattern reads left to right the way she would say it out loud. */
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.25rem;
+  background: #1f1f25;
+  border-radius: 0.6rem;
+}
+
+.degree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2.2rem;
+}
+
+.degree-note { font-weight: 600; font-size: 0.95rem; }
+.degree-label { font-size: 0.7rem; color: var(--muted); }
+
+.step {
+  font-size: 0.7rem;
+  color: var(--muted);
+  padding: 0 0.1rem;
+  align-self: flex-start;
+  margin-top: 0.15rem;
+}
+
+/* The augmented second is the one step that is neither whole nor half, so it
+   gets to look different rather than being quietly rounded to one of them. */
+.step.augmented {
+  color: #1b1b1f;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.3rem;
+  font-weight: 700;
+}
+
+.secondary {
+  width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.8rem;
+  font: inherit;
+  border: 1px solid var(--accent);
+  border-radius: 0.6rem;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  min-height: 2.9rem;
+}
+
+.primary:disabled,
+.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.muted-block {
+  background: #262019;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem;
+}

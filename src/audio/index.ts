@@ -15,11 +15,19 @@ import { NULL_SINK, type EventSink } from './sink'
 import { createWebAudioSink } from './webAudioSink'
 import { createSynthInstrument } from './voices/synthVoice'
 import { createClickInstrument } from './voices/clickVoice'
+import { createDrone, type Drone } from './drone'
 import type { Instrument } from './voices/voice'
 
 export interface AudioSystem {
   readonly engine: AudioEngine
   readonly transport: Transport
+  /**
+   * Null until the engine has been unlocked. Lives on its own bus, so stopping
+   * the transport never silences it.
+   */
+  readonly drone: Drone | null
+  /** Start or retune the drone, unlocking audio first if need be. */
+  setDrone(spec: Parameters<Drone['start']>[0] | null): Promise<void>
   /** Unlock and prepare. Must be called from inside a user gesture. */
   ready(): Promise<void>
   play(score: Score, tempo: TempoMap): Promise<void>
@@ -33,6 +41,7 @@ export function createAudioSystem(): AudioSystem {
 
   let sink: EventSink = NULL_SINK
   let instrument: Instrument | null = null
+  let drone: Drone | null = null
 
   // The transport is built before there is any audio, against a null sink, so
   // nothing has to wait for the context to exist. The real sink is swapped in
@@ -60,6 +69,10 @@ export function createAudioSystem(): AudioSystem {
     const master = engine.master
     if (!context || !master) return
 
+    if (!drone && engine.droneBus) {
+      drone = createDrone(context, engine.droneBus)
+    }
+
     if (!instrument) {
       instrument = createSynthInstrument(context)
       sink = createWebAudioSink({
@@ -75,6 +88,17 @@ export function createAudioSystem(): AudioSystem {
     engine,
     transport,
     ready,
+
+    get drone() {
+      return drone
+    },
+
+    async setDrone(spec) {
+      await ready()
+      if (!drone) return
+      if (spec === null) drone.stop()
+      else drone.start(spec)
+    },
 
     async play(score, tempo) {
       await ready()
@@ -93,6 +117,8 @@ export function createAudioSystem(): AudioSystem {
     },
 
     dispose() {
+      drone?.dispose()
+      drone = null
       transport.dispose()
       engine.dispose()
     },

@@ -1,16 +1,18 @@
-import { For, createSignal, type Component } from 'solid-js'
+import { For, Show, createSignal, type Component } from 'solid-js'
 import Metronome from './features/metronome/Metronome'
 import Rhythm from './features/rhythm/Rhythm'
+import Scales from './features/scales/Scales'
 
-type TabId = 'rhythm' | 'metronome'
+type TabId = 'scales' | 'rhythm' | 'metronome'
 
 const TABS: ReadonlyArray<{ id: TabId; label: string }> = [
+  { id: 'scales', label: 'Scales' },
   { id: 'rhythm', label: 'Rhythm' },
   { id: 'metronome', label: 'Metronome' },
 ]
 
 const App: Component = () => {
-  const [tab, setTab] = createSignal<TabId>('rhythm')
+  const [tab, setTab] = createSignal<TabId>('scales')
 
   return (
     <main class="shell">
@@ -38,7 +40,15 @@ const App: Component = () => {
 
       {/* Each panel owns its own audio system, so switching tabs stops the
           previous one cleanly rather than leaving it sounding underneath. */}
-      {tab() === 'rhythm' ? <Rhythm /> : <Metronome />}
+      <Show when={tab() === 'scales'}>
+        <Scales />
+      </Show>
+      <Show when={tab() === 'rhythm'}>
+        <Rhythm />
+      </Show>
+      <Show when={tab() === 'metronome'}>
+        <Metronome />
+      </Show>
 
       <footer>v{__APP_VERSION__}</footer>
     </main>
