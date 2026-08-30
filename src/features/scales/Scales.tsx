@@ -1,5 +1,5 @@
 import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
-import { type Letter, formatPitch, pc, toMidi } from '@core/pitch/pitch'
+import { type Letter, type PitchClass, formatPitch, pc, toMidi } from '@core/pitch/pitch'
 import { CIRCLE_OF_FIFTHS } from '@core/key/key'
 import { SCALE_TYPES, SCALE_TYPE_LIST, type ScaleTypeId } from '@core/scale/scaleTypes'
 import { tryBuildScale } from '@core/scale/scale'
@@ -14,8 +14,47 @@ import Fingerboard from '@components/fingerboard/Fingerboard'
 
 type Octaves = 1 | 2 | 3
 
-/** The roots a player is actually handed, in circle-of-fifths order. */
-const ROOTS = CIRCLE_OF_FIFTHS.filter((e) => Math.abs(e.fifths) <= 5).map((e) => e.major.tonic)
+/**
+ * Every key that can actually be written, in circle-of-fifths order.
+ *
+ * Both spellings of the enharmonic keys are offered rather than one of each
+ * pair. F sharp major and G flat major are the same twelve sounds but genuinely
+ * different keys on the page — six sharps against six flats — and which one a
+ * piece is written in is exactly the kind of thing this app exists to explain.
+ * Picking one and hiding the other would teach that the choice does not exist.
+ */
+interface RootChoice {
+  readonly tonic: PitchClass
+  readonly fifths: number
+  readonly name: string
+  /** '6 sharps', '3 flats', 'no sharps or flats' */
+  readonly signature: string
+  /** The other spelling of the same sounds, where one is writable. */
+  readonly twin: string | null
+}
+
+function describeSignature(count: number, accidental: string): string {
+  if (count === 0) return 'no sharps or flats'
+  return `${count} ${accidental}${count === 1 ? '' : 's'}`
+}
+
+const ROOTS: readonly RootChoice[] = CIRCLE_OF_FIFTHS.map((entry) => {
+  // Twelve fifths is an enharmonic round trip, so a key has a writable twin only
+  // when stepping a full turn lands back inside the seven-accidental range.
+  const twinFifths = entry.fifths > 0 ? entry.fifths - 12 : entry.fifths + 12
+  const twin = CIRCLE_OF_FIFTHS.find((e) => e.fifths === twinFifths && e.fifths !== entry.fifths)
+
+  return {
+    tonic: entry.major.tonic,
+    fifths: entry.fifths,
+    name: formatPitch(entry.major.tonic),
+    signature: describeSignature(
+      entry.major.signature.letters.length,
+      entry.major.signature.accidental,
+    ),
+    twin: twin ? formatPitch(twin.major.tonic) : null,
+  }
+})
 
 /**
  * Pick a key, hear the scale, see where it lives.
@@ -29,13 +68,14 @@ export default function Scales() {
   const system = createAudioSystem()
   const signals = createTransportState(system.transport)
 
-  const [rootIndex, setRootIndex] = createSignal(ROOTS.findIndex((r) => r.letter === 'C'))
+  const [rootIndex, setRootIndex] = createSignal(ROOTS.findIndex((r) => r.fifths === 0))
   const [typeId, setTypeId] = createSignal<ScaleTypeId>('major')
   const [octaves, setOctaves] = createSignal<Octaves>(2)
   const [bpm, setBpm] = createSignal(72)
   const [droneOn, setDroneOn] = createSignal(false)
 
-  const root = () => ROOTS[rootIndex()] ?? pc('C' as Letter)
+  const rootChoice = () => ROOTS[rootIndex()]
+  const root = () => rootChoice()?.tonic ?? pc('C' as Letter)
 
   /**
    * How high up the fingerboard to allow the search to go.
@@ -133,7 +173,12 @@ export default function Scales() {
           <span>Key</span>
           <select value={rootIndex()} onChange={(e) => setRootIndex(Number(e.currentTarget.value))}>
             <For each={ROOTS}>
-              {(r, i) => <option value={i()}>{formatPitch(r)}</option>}
+              {(r, i) => (
+                <option value={i()}>
+                  {r.name}
+                  {r.twin ? ` / ${r.twin}` : ''} — {r.signature}
+                </option>
+              )}
             </For>
           </select>
         </label>
@@ -160,6 +205,11 @@ export default function Scales() {
           <>
             <p class="scale-name">
               {current.name}
+              <Show when={rootChoice()?.twin}>
+                {(twin) => (
+                  <span class="muted"> · same sounds as {twin()}{' '}{current.type.name.toLowerCase()}</span>
+                )}
+              </Show>
               <span class="muted">
                 {' '}· {current.key.signature.letters.length === 0
                   ? 'no sharps or flats'
