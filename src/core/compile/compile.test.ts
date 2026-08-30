@@ -10,6 +10,7 @@ import { constantTempo, tempoFromBeat } from '../tempo'
 import { eventAtTick, noteEvents } from '../score'
 import { compileMetronome } from './metronome'
 import { compileScale } from './scale'
+import { fingerScale } from '../viola/scaleFingering'
 import { compileRhythm, tapGridFor } from './rhythm'
 
 const clicks = (s: ReturnType<typeof compileMetronome>) =>
@@ -250,5 +251,55 @@ describe('score housekeeping', () => {
     expect(eventAtTick(score, 0)?.uiIndex).toBe(0)
     expect(eventAtTick(score, eighth + 10)?.uiIndex).toBe(1)
     expect(eventAtTick(score, 3 * eighth)?.uiIndex).toBe(3)
+  })
+})
+
+describe('the fingering and the playback must agree', () => {
+  /**
+   * A real bug this pins: the fingerboard highlights by index into the fingering
+   * plan, and playback supplies that index. If the plan is built in one
+   * direction while the scale plays in another, every index past the top note
+   * has no dot to light and the descent silently goes dark — the notes still
+   * sound, the diagram just stops following.
+   */
+  const cases: Array<{ direction: 'up' | 'down' | 'up-down'; octaves: 1 | 2 | 3 }> = [
+    { direction: 'up', octaves: 1 },
+    { direction: 'up', octaves: 2 },
+    { direction: 'up-down', octaves: 1 },
+    { direction: 'up-down', octaves: 2 },
+    { direction: 'down', octaves: 2 },
+  ]
+
+  it('produces one fingered note per sounded note, in every direction', () => {
+    const scale = buildScale(pc('C'), SCALE_TYPES.major)
+
+    for (const { direction, octaves } of cases) {
+      const plan = fingerScale(scale, { startOctave: 3, octaves, direction })
+      const { score } = compileScale({ scale, startOctave: 3, octaves, direction })
+      const sounded = noteEvents(score)
+
+      expect(plan.notes.length, `${direction} over ${octaves} octaves`).toBe(sounded.length)
+
+      // And every sounded note must be findable in the plan by its own index.
+      for (const event of sounded) {
+        const fingered = plan.notes[event.uiIndex ?? -1]
+        expect(fingered, `no fingering for note ${event.uiIndex}`).toBeDefined()
+      }
+    }
+  })
+
+  it('keeps them aligned for an asymmetric scale, where the descent differs', () => {
+    const melodic = buildScale(pc('A'), SCALE_TYPES['melodic-minor'])
+    const plan = fingerScale(melodic, { startOctave: 3, octaves: 2, direction: 'up-down' })
+    const { score, pitches } = compileScale({
+      scale: melodic,
+      startOctave: 3,
+      octaves: 2,
+      direction: 'up-down',
+    })
+
+    expect(plan.notes.length).toBe(noteEvents(score).length)
+    // The fingered pitches are the pitches that sound, descent included.
+    expect(plan.notes.map((n) => n.pitch)).toEqual(pitches)
   })
 })

@@ -1,6 +1,7 @@
 import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import { COMMON_METERS, type Meter } from '@core/rhythm/meter'
 import { type RhythmPreset, presetsForMeter } from '@core/rhythm/presets'
+import { formatDuration } from '@core/rhythm/duration'
 import { compileRhythm } from '@core/compile/rhythm'
 import { clampBpm, tempoFromBeat } from '@core/tempo'
 import { majorKeyAtFifths } from '@core/key/key'
@@ -29,6 +30,9 @@ export default function Rhythm() {
   const [presetId, setPresetId] = createSignal<string | null>(null)
   const [bpm, setBpm] = createSignal(80)
   const [withClick, setWithClick] = createSignal(true)
+  // Looping is how you actually learn a rhythm — you play it round and round
+  // until it stops needing counting.
+  const [loop, setLoop] = createSignal(true)
 
   const meter = (): Meter => COMMON_METERS[meterIndex()] ?? COMMON_METERS[0]!
 
@@ -57,6 +61,7 @@ export default function Rhythm() {
       events: current.events,
       withClick: withClick(),
       countInBars: 1,
+      loop: loop(),
     })
     await system.play(score, tempoFromBeat(bpm(), current.meter.beatUnit))
   }
@@ -85,15 +90,13 @@ export default function Rhythm() {
             system.stop()
           }}
         >
-          <For each={COMMON_METERS}>
-            {(m, i) => (
-              <option value={i()}>
-                {m.label} — {m.description}
-              </option>
-            )}
-          </For>
+          {/* Just the time signature. A dropdown is for choosing, not explaining
+              — the explanation gets its own line below, where there is room. */}
+          <For each={COMMON_METERS}>{(m, i) => <option value={i()}>{m.label}</option>}</For>
         </select>
       </label>
+
+      <p class="meter-explain">{meter().description}</p>
 
       <div class="preset-list" role="listbox" aria-label="rhythm examples">
         <For each={presets()}>
@@ -146,7 +149,10 @@ export default function Rhythm() {
       </div>
 
       <label class="field">
-        <span>Tempo — {bpm()} beats per minute</span>
+        <span>
+          Tempo — {bpm()} {formatDuration(meter().beatUnit).replace(' note', '')}
+          {bpm() === 1 ? '' : 's'} per minute
+        </span>
         <input
           type="range"
           min="30"
@@ -165,13 +171,29 @@ export default function Rhythm() {
         <span>Play a click underneath</span>
       </label>
 
+      <label class="checkbox">
+        <input
+          type="checkbox"
+          checked={loop()}
+          onChange={(e) => {
+            setLoop(e.currentTarget.checked)
+            // Take effect now rather than on the next press.
+            if (signals.isPlaying()) {
+              system.stop()
+              void play()
+            }
+          }}
+        />
+        <span>Loop it</span>
+      </label>
+
       <button class="primary" onClick={toggle}>
         {signals.isPlaying() ? 'Stop' : 'Play'}
       </button>
 
       <p class="meta">
         <Show when={signals.isCountIn()}>counting in · </Show>
-        {meter().label} · {meter().description} · grouped {meter().grouping.join('+')}
+        {meter().formalName}
       </p>
     </section>
   )

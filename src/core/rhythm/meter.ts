@@ -38,7 +38,14 @@ export interface Meter {
   /** Ticks in one notated pulse (one eighth in x/8). */
   readonly pulseTicks: Ticks
   readonly label: string
+  /**
+   * Plain language, for someone who is fluent on the instrument but new to
+   * theory: "four beats, each split into three". The point of a meter is how it
+   * is COUNTED, and that sentence says it without requiring the vocabulary.
+   */
   readonly description: string
+  /** The textbook name — 'compound quadruple'. Correct, but not an explanation. */
+  readonly formalName: string
 }
 
 const DENOMINATOR_VALUE: Readonly<Record<Denominator, NoteValue>> = {
@@ -157,13 +164,33 @@ export function accentsFor(grouping: readonly number[]): AccentLevel[] {
   })
 }
 
-function describe(cls: MeterClass, beats: number, grouping: readonly number[]): string {
-  const COUNT = ['', 'single', 'duple', 'triple', 'quadruple', 'quintuple', 'sextuple']
-  const word = COUNT[beats] ?? `${beats}-beat`
+const COUNT_WORD = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']
+const FORMAL_COUNT = ['', 'single', 'duple', 'triple', 'quadruple', 'quintuple', 'sextuple']
 
-  if (cls === 'compound') return `compound ${word} — ${beats} dotted beats`
-  if (cls === 'asymmetric') return `asymmetric — grouped ${grouping.join('+')}`
-  return `simple ${word} — ${beats} beats`
+/**
+ * How the bar is counted, in words rather than terminology.
+ *
+ * A compound meter's whole character is that its beats divide in three, and an
+ * asymmetric meter's is that its groups are uneven — so those are what the
+ * sentence leads with.
+ */
+function describe(cls: MeterClass, beats: number, grouping: readonly number[]): string {
+  const count = COUNT_WORD[beats] ?? `${beats}`
+
+  // Compound meters are the case where the beat unit is genuinely surprising:
+  // the bar is written in eighths but counted in dotted quarters, and the tempo
+  // follows the dotted quarter. Saying so is the whole lesson.
+  if (cls === 'compound') return `${count} dotted beats, each split into three`
+  if (cls === 'asymmetric') return `uneven beats, grouped ${grouping.join(' + ')}`
+  if (beats === 1) return 'one beat in the bar'
+  return `${count} beats, each split into two`
+}
+
+/** The textbook name, kept for anyone who wants it. */
+function formalNameFor(cls: MeterClass, beats: number): string {
+  if (cls === 'asymmetric') return 'asymmetric'
+  const count = FORMAL_COUNT[beats] ?? `${beats}-beat`
+  return `${cls} ${count}`
 }
 
 export interface MeterOptions {
@@ -217,6 +244,7 @@ export function meter(
     pulseTicks: ticksFromWholeNotes(pulseValue),
     label: `${numerator}/${denominator}`,
     description: describe(cls, beats, grouping),
+    formalName: formalNameFor(cls, beats),
   }
 }
 

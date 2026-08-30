@@ -88,13 +88,7 @@ export default function Metronome() {
           value={meterIndex()}
           onChange={(e) => setMeterIndex(Number(e.currentTarget.value))}
         >
-          <For each={COMMON_METERS}>
-            {(m, i) => (
-              <option value={i()}>
-                {m.label} — {m.description}
-              </option>
-            )}
-          </For>
+          <For each={COMMON_METERS}>{(m, i) => <option value={i()}>{m.label}</option>}</For>
         </select>
       </label>
 
@@ -120,8 +114,10 @@ export default function Metronome() {
         </p>
       </Show>
 
+      <p class="meter-explain">{meter().description}</p>
+
       <p class="meta">
-        {meter().label} · {meter().beats} beats · grouped {meter().grouping.join('+')}
+        {meter().formalName} · grouped {meter().grouping.join('+')}
         <Show when={bpmInBeat(tempoFromBeat(bpm(), meter().beatUnit), meter().beatUnit) !== bpm()}>
           {' '}· internally {Math.round(tempoFromBeat(bpm(), meter().beatUnit).quarterBpm)} qpm
         </Show>

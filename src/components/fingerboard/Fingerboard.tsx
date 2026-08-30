@@ -74,8 +74,15 @@ const R_GHOST_LOUD = 8
 const cxOf = (dot: FingerboardDot): number => BOARD_X0 + dot.x * BOARD_W
 const cyOf = (y: number): number => BAND_Y0 + y * BAND_H
 
+/**
+ * Label a shift with the position it arrives in.
+ *
+ * "pos." is not decoration. In a music app "3rd" and "6th" read as INTERVALS
+ * first — a third and a sixth are notes apart, not places on the neck — so the
+ * bare ordinal actively misleads. The two extra characters remove the ambiguity.
+ */
 const shortPosition = (position: number): string =>
-  positionName(position).split(' ')[0] ?? String(position)
+  `${positionName(position).split(' ')[0] ?? String(position)} pos.`
 
 interface ShiftArc {
   readonly path: string
@@ -208,6 +215,19 @@ export default function Fingerboard(props: FingerboardProps): JSX.Element {
           {(x) => <line x1={x} y1={BAND_Y0 + BAND_H - 5} x2={x} y2={BAND_Y0 + BAND_H} />}
         </For>
       </g>
+
+      {/* Caption the axis once, so the ordinals below are read as places on the
+          neck rather than as intervals. */}
+      <text
+        x={BOARD_X0 - 6}
+        y={BAND_Y0 + BAND_H + 13}
+        text-anchor="end"
+        font-size="7.5"
+        fill="var(--muted)"
+        opacity="0.85"
+      >
+        position
+      </text>
 
       <For each={layout().positionMarkers}>
         {(marker) => (

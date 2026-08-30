@@ -323,3 +323,113 @@ header { margin-bottom: 1.5rem; }
   padding: 0.6rem 0.75rem;
   font-size: 0.82rem;
 }
+
+/* The meter explained in words, directly under the picker. Plain language does
+   the teaching; the textbook term sits quietly at the bottom of the panel. */
+.meter-explain {
+  margin: -0.35rem 0 1rem;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+/* The step pattern, given its own line and enough weight to read as one shape.
+   Colour is not the only cue — the two are different sizes and weights too —
+   but the contrast is what makes the shape of a scale visible at a glance. */
+.pattern {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  margin: 0 0 0.9rem;
+  padding: 0.6rem 0.5rem;
+  background: #1f1f25;
+  border-radius: 0.6rem;
+  /* Never wrap: a pattern broken across lines stops reading as a single shape. */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.chip {
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  line-height: 1.2;
+}
+
+/* Whole step: the ordinary case, cool and quiet. */
+.chip.w {
+  color: #9fc7e8;
+  background: rgba(120, 170, 210, 0.14);
+}
+
+/* Half step: where the scale tightens. Warm, and deliberately louder. */
+.chip.h {
+  color: #f0a67a;
+  background: rgba(230, 140, 90, 0.18);
+}
+
+/* Neither whole nor half — the augmented second only harmonic minor has. */
+.chip.a2 {
+  color: #1b1b1f;
+  background: var(--accent);
+}
+
+.chip-sep {
+  color: #4a4a55;
+  font-weight: 600;
+}
+
+/* What is sounding, named. The dot on the fingerboard says where; this says what. */
+.now-playing {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 2.4rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.now-note {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.now-detail { font-size: 0.85rem; color: var(--muted); }
+
+/* The fingerboard has three kinds of dot and none of them are self-explanatory. */
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  margin: 0.35rem 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.key-dot {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  margin-right: 0.3rem;
+  vertical-align: -1px;
+}
+
+.key-dot.filled { background: var(--accent); }
+.key-dot.ghost { border: 1px dashed var(--muted); }
+.key-dot.tonic { background: var(--accent); box-shadow: 0 0 0 2px var(--text); }
+
+.legend-arc {
+  display: inline-block;
+  margin-right: 0.25rem;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 0.6;
+}

@@ -38,7 +38,9 @@ describe('12/8 — the meter she asked about', () => {
   })
 
   it('describes itself in words a beginner can use', () => {
-    expect(m.description).toBe('compound quadruple — 4 dotted beats')
+    // Plain language, for someone fluent on the instrument but new to theory.
+    expect(m.description).toBe('four dotted beats, each split into three')
+    expect(m.formalName).toBe('compound quadruple')
     expect(m.label).toBe('12/8')
   })
 })
@@ -105,7 +107,8 @@ describe('asymmetric meters', () => {
   it('moves the accents when regrouped as 3+2+2', () => {
     const m = meter(7, 8, { grouping: [3, 2, 2] })
     expect(beatOnsets(m).map((t) => t / m.pulseTicks)).toEqual([0, 3, 5])
-    expect(m.description).toBe('asymmetric — grouped 3+2+2')
+    expect(m.description).toBe('uneven beats, grouped 3 + 2 + 2')
+    expect(m.formalName).toBe('asymmetric')
   })
 
   it('offers the real alternatives for the UI to present', () => {

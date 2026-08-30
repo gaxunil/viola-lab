@@ -1,4 +1,4 @@
-import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
+import { For, Show, createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 import { type Letter, type PitchClass, formatPitch, pc, toMidi } from '@core/pitch/pitch'
 import { CIRCLE_OF_FIFTHS } from '@core/key/key'
 import { SCALE_TYPES, SCALE_TYPE_LIST, type ScaleTypeId } from '@core/scale/scaleTypes'
@@ -11,6 +11,9 @@ import { meter } from '@core/rhythm/meter'
 import { createAudioSystem } from '@audio/index'
 import { createTransportState } from '@state/useTransport'
 import Fingerboard from '@components/fingerboard/Fingerboard'
+import Staff from '@components/notation/Staff'
+import { note } from '@core/rhythm/bar'
+import { realize } from '@core/scale/scale'
 
 type Octaves = 1 | 2 | 3
 
@@ -87,6 +90,16 @@ export default function Scales() {
    */
   const maxPosition = () => (octaves() === 3 ? 12 : 5)
 
+  /**
+   * One direction, used by both the fingering and the playback.
+   *
+   * These must not be decided in two places. The plan supplies the dots the
+   * fingerboard highlights, and playback supplies the index into them; if the
+   * plan is built ascending while the scale plays up AND down, every index past
+   * the top note has no dot to light and the descent goes dark.
+   */
+  const DIRECTION = 'up-down' as const
+
   const scale = createMemo(() => tryBuildScale(root(), SCALE_TYPES[typeId()]))
 
   const range = createMemo(() => {
@@ -101,6 +114,7 @@ export default function Scales() {
     return fingerScale(s, {
       startOctave: r.start.octave,
       octaves: octaves(),
+      direction: DIRECTION,
       maxPosition: maxPosition(),
     })
   })
@@ -111,6 +125,107 @@ export default function Scales() {
    * Deduplicated by reason: starting on B flat 4 and B flat 5 both fail for the
    * same reason, and saying so three times is noise rather than teaching.
    */
+  /**
+   * The scale as she would read it: alto clef, with the key signature.
+   *
+   * This is the point of contact between the theory and the page. Seeing that
+   * E flat major carries three flats ON THE CLEF, rather than an accidental
+   * beside every altered note, is most of what a key signature IS.
+   */
+  const notated = createMemo(() => {
+    const s = scale()
+    const r = range()
+    if (!s || !r) return null
+    const pitches = realize(s, {
+      startOctave: r.start.octave,
+      octaves: octaves(),
+      direction: DIRECTION,
+    })
+    return {
+      key: s.key,
+      pitches,
+      // One notehead per pitch; the rhythm is irrelevant here, so plain quarters.
+      events: pitches.map(() => note(dur('quarter'))),
+    }
+  })
+
+  /**
+   * The note sounding right now, and which way the scale is going.
+   *
+   * Watching a dot light up tells her WHERE; it does not tell her WHAT. Naming
+   * the note as it sounds is what connects the diagram to the thing she is
+   * trying to learn, and the direction matters because melodic minor genuinely
+   * changes on the way down.
+   */
+  const nowPlaying = createMemo(() => {
+    const current = plan()
+    const index = signals.noteIndex()
+    if (!current || index === null || !signals.isPlaying()) return null
+
+    const fingered = current.notes[index]
+    if (!fingered) return null
+
+    // The turning point is the highest note of the run.
+    let peak = 0
+    for (const [i, n] of current.notes.entries()) {
+      const best = current.notes[peak]
+      if (best && toMidi(n.pitch) > toMidi(best.pitch)) peak = i
+    }
+
+    return {
+      name: formatPitch(fingered.pitch),
+      finger: fingered.placement.finger,
+      string: fingered.placement.string,
+      isOpen: fingered.placement.isOpen,
+      direction: index < peak ? 'ascending' : index > peak ? 'descending' : 'the top',
+      degree: null as number | null,
+    }
+  })
+
+  /**
+   * Keep the sounding note in view as the scale runs past the edge of the panel.
+   *
+   * Position is estimated from the note's index rather than by measuring the
+   * rendered notehead: VexFlow lays notes out evenly here, the container is the
+   * thing that scrolls, and reaching into the SVG to find a glyph would couple
+   * this to VexFlow's internals for a smoother result nobody would notice.
+   */
+  const [staffHost, setStaffHost] = createSignal<HTMLDivElement | undefined>()
+
+  /**
+   * The Staff component brings its own horizontally-scrolling wrapper, so the
+   * element that actually scrolls is a descendant rather than the host. Find
+   * whichever one really overflows instead of assuming.
+   */
+  function scrollerWithin(host: HTMLElement): HTMLElement | null {
+    if (host.scrollWidth > host.clientWidth) return host
+    for (const child of host.querySelectorAll<HTMLElement>('*')) {
+      if (child.scrollWidth > child.clientWidth + 1) return child
+    }
+    return null
+  }
+
+  createEffect(() => {
+    const host = staffHost()
+    const index = signals.noteIndex()
+    const current = notated()
+    if (!host || !current || index === null || !signals.isPlaying()) return
+
+    const total = current.pitches.length
+    if (total === 0) return
+
+    const scroller = scrollerWithin(host)
+    if (!scroller) return // it all fits; nothing to follow
+
+    const overflow = scroller.scrollWidth - scroller.clientWidth
+    if (overflow <= 0) return
+
+    // Centre the note, clamped so the ends do not swing past the music.
+    const target =
+      (index / Math.max(1, total - 1)) * scroller.scrollWidth - scroller.clientWidth / 2
+    scroller.scrollTo({ left: Math.max(0, Math.min(overflow, target)), behavior: 'smooth' })
+  })
+
   const blocked = createMemo(() => {
     const s = scale()
     if (!s) return []
@@ -140,7 +255,7 @@ export default function Scales() {
       scale: s,
       startOctave: r.start.octave,
       octaves: octaves(),
-      direction: 'up-down',
+      direction: DIRECTION,
       noteValue: dur('eighth'),
       meter: meter(4, 4),
     })
@@ -219,8 +334,39 @@ export default function Scales() {
               </span>
             </p>
 
-            {/* The step pattern, which is what she asked to see. */}
-            <div class="steps" aria-label="whole and half step pattern">
+            {/* The pattern on its own line, big enough to read at a glance and
+                colour-coded, because the difference between a whole step and a
+                half step IS the shape of the scale. Never wraps: a broken
+                pattern is much harder to read as one shape. */}
+            <div
+              class="pattern"
+              aria-label={`step pattern: ${current.steps.map((x) => x.name).join(', ')}`}
+            >
+              <For each={current.steps}>
+                {(step, i) => (
+                  <>
+                    <span
+                      class="chip"
+                      classList={{
+                        w: step.symbol === 'W',
+                        h: step.symbol === 'H',
+                        a2: step.isAugmented,
+                      }}
+                      title={step.name}
+                    >
+                      {step.display}
+                    </span>
+                    <Show when={i() < current.steps.length - 1}>
+                      <span class="chip-sep" aria-hidden="true">
+                        –
+                      </span>
+                    </Show>
+                  </>
+                )}
+              </For>
+            </div>
+
+            <div class="steps" aria-label="the notes, with the step between each">
               <For each={current.degrees}>
                 {(degree, i) => (
                   <>
@@ -257,6 +403,37 @@ export default function Scales() {
         )}
       </Show>
 
+      {/* Reserve the row so the panel does not jump when playback starts. */}
+      <p class="now-playing" aria-live="polite">
+        <Show when={nowPlaying()} fallback={<span class="muted">press play to hear it</span>} keyed>
+          {(now) => (
+            <>
+              <span class="now-note">{now.name}</span>
+              <span class="now-detail">
+                {now.isOpen ? `open ${now.string}` : `${now.string} string, finger ${now.finger}`}
+                {' · '}
+                {now.direction}
+              </span>
+            </>
+          )}
+        </Show>
+      </p>
+
+      <Show when={notated()} keyed>
+        {(current) => (
+          <div class="staff-wrap" ref={setStaffHost}>
+            <Staff
+              events={current.events}
+              meter={meter(4, 4)}
+              key={current.key}
+              pitches={current.pitches}
+              showTimeSignature={false}
+              highlightIndex={signals.isPlaying() ? signals.noteIndex() : null}
+            />
+          </div>
+        )}
+      </Show>
+
       <Show when={plan()} keyed>
         {(current) => (
           <>
@@ -268,6 +445,16 @@ export default function Scales() {
               plan={current}
               highlightIndex={signals.isPlaying() ? signals.noteIndex() : null}
             />
+            <p class="legend">
+              <span class="key-dot filled" /> played here
+              <span class="key-dot ghost" /> the same note elsewhere on the board
+              <span class="key-dot tonic" /> the tonic
+              <span class="legend-arc" aria-hidden="true">
+                ⌒
+              </span>{' '}
+              an arc marks a shift, labelled with the position the hand moves into
+            </p>
+
             <p class="meta">
               <Show
                 when={current.staysInFirstPosition}

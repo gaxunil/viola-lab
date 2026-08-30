@@ -59,7 +59,8 @@ const TYPES: readonly ScaleType[] = [
     category: 'major',
     ascending: ivs('P1', 'M2', 'M3', 'P4', 'P5', 'M6', 'M7'),
     signatureBasis: 'major',
-    blurb: 'The reference scale. Whole and half steps in the pattern W-W-H-W-W-W-H.',
+    blurb:
+      'The reference scale. Every other scale here is described by how it differs from this one.',
   },
   {
     id: 'natural-minor',
@@ -68,7 +69,8 @@ const TYPES: readonly ScaleType[] = [
     category: 'minor',
     ascending: ivs('P1', 'M2', 'm3', 'P4', 'P5', 'm6', 'm7'),
     signatureBasis: 'minor',
-    blurb: 'The same notes as its relative major, started three steps lower.',
+    blurb:
+      'The same notes as its relative major, started three steps lower — which is why they share a key signature.',
   },
   {
     id: 'harmonic-minor',
