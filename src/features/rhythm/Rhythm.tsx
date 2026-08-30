@@ -2,7 +2,7 @@ import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import { COMMON_METERS, type Meter } from '@core/rhythm/meter'
 import { type RhythmPreset, presetsForMeter } from '@core/rhythm/presets'
 import { formatDuration } from '@core/rhythm/duration'
-import { countRhythm, countingAdvice } from '@core/rhythm/counting'
+import { countRhythm, countingAdvice, pulseIndexAt } from '@core/rhythm/counting'
 import { compileRhythm } from '@core/compile/rhythm'
 import { clampBpm, tempoFromBeat } from '@core/tempo'
 import { majorKeyAtFifths } from '@core/key/key'
@@ -50,6 +50,27 @@ export default function Rhythm() {
   // The notation key is immaterial for an unpitched rhythm drill, but the staff
   // still needs one; C major keeps the stave clean of accidentals.
   const notationKey = majorKeyAtFifths(0)
+
+  /**
+   * Which syllable is being said right now.
+   *
+   * Derived from the transport's tick rather than from the note index, because
+   * the count runs on every subdivision while the notes do not: a dotted quarter
+   * covers three syllables, and the highlight has to walk all three.
+   */
+  const activePulse = createMemo(() => {
+    const current = preset()
+    const position = signals.position()
+    if (!current || !position || !signals.isPlaying()) return null
+
+    const m = current.meter
+    // The exercise starts after the count-in bar.
+    const bodyTick = position.tick - m.barTicks
+    if (bodyTick < 0) return null
+
+    const inBar = ((bodyTick % m.barTicks) + m.barTicks) % m.barTicks
+    return pulseIndexAt(m, inBar)
+  })
 
   followStaff({
     host: staffHost,
@@ -141,10 +162,11 @@ export default function Rhythm() {
                 dimmed, which is what the brackets mean on paper. */}
             <div class="count-line" aria-label={`count: ${countRhythm(current.meter, current.events).map((p) => p.say).join(' ')}`}>
               <For each={countRhythm(current.meter, current.events)}>
-                {(pulse) => (
+                {(pulse, i) => (
                   <span
                     class="count"
                     classList={{
+                      now: activePulse() === i(),
                       strike: pulse.role === 'strike',
                       hold: pulse.role === 'hold',
                       silent: pulse.role === 'rest',
@@ -166,6 +188,58 @@ export default function Rhythm() {
 
             <p class="teaching">{current.note}</p>
             <p class="teaching muted-block">{countingAdvice(current.meter)}</p>
+
+            <details class="explainer">
+              <summary>What does the dot do?</summary>
+              <p>
+                A dot adds half of the note back onto itself. A quarter note lasts one beat,
+                so a <strong>dotted</strong> quarter lasts one and a half — a quarter plus an
+                eighth. A dotted half is three beats rather than two.
+              </p>
+              <p>
+                It exists because some lengths have no note of their own. There is no single
+                symbol for three eighths, so you write an eighth-plus-a-quarter tied together,
+                or you write one dotted quarter and save the ink. They mean exactly the same
+                thing.
+              </p>
+              <Show when={current.meter.class === 'compound'}>
+                <p>
+                  This is why {current.meter.label} counts in dotted beats. A bar holds{' '}
+                  {current.meter.numerator} eighths, and they group into{' '}
+                  {current.meter.beats} beats of three — and three eighths is precisely what a
+                  dotted quarter is. The dot is not decoration here; it is the only way to
+                  write the beat.
+                </p>
+              </Show>
+            </details>
+
+            <Show when={current.meter.class === 'compound'}>
+              <details class="explainer">
+                <summary>Is this just triplets?</summary>
+                <p>
+                  It sounds identical, and that is a fair thing to notice. The difference is
+                  which division counts as normal.
+                </p>
+                <p>
+                  A <strong>triplet</strong> is borrowed: three notes squeezed into the space
+                  of two. That is why it is drawn with a bracket and a little 3 — it is being
+                  marked as an exception to the beat around it.
+                </p>
+                <p>
+                  In {current.meter.label} nothing is borrowed. Three eighths to a beat IS the
+                  beat, so there is no bracket and no 3, and the staff above has none. The
+                  exception here would run the other way: two in the space of three, which is
+                  called a duplet and gets the bracket instead.
+                </p>
+                <p class="aside">
+                  So the choice is a statement about what the piece is mostly doing. Mostly in
+                  threes, write {current.meter.label} and stop drawing brackets. Mostly in twos
+                  with the occasional three, write{' '}
+                  {current.meter.numerator === 12 ? '4/4' : current.meter.numerator === 6 ? '2/4' : '3/4'}{' '}
+                  and bracket the triplets.
+                </p>
+              </details>
+            </Show>
           </>
         )}
       </Show>

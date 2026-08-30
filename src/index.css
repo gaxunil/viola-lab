@@ -162,7 +162,7 @@ header { margin-bottom: 1.5rem; }
 }
 
 .meta {
-  margin: 1rem 0 0;
+  margin: 0.9rem 0 0.9rem;
   font-size: 0.8rem;
   color: var(--muted);
   text-align: center;
@@ -320,8 +320,10 @@ header { margin-bottom: 1.5rem; }
 .muted-block {
   background: #262019;
   border-radius: 0.5rem;
-  padding: 0.6rem 0.75rem;
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 1.1rem;
   font-size: 0.82rem;
+  line-height: 1.55;
 }
 
 /* The meter explained in words, directly under the picker. Plain language does
@@ -407,10 +409,23 @@ header { margin-bottom: 1.5rem; }
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.3rem 0.9rem;
-  margin: 0.35rem 0 0.5rem;
+  /* Generous row gap: these wrap on a phone, and cramped rows read as one
+     run-on sentence rather than as separate entries. */
+  gap: 0.5rem 1.1rem;
+  margin: 0.75rem 0 0.9rem;
+  padding: 0.65rem 0.5rem;
+  background: #1f1f25;
+  border-radius: 0.5rem;
   font-size: 0.75rem;
+  line-height: 1.5;
   color: var(--muted);
+}
+
+/* Each entry stays whole when the row wraps. */
+.legend > .legend-item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .key-dot {
@@ -428,10 +443,11 @@ header { margin-bottom: 1.5rem; }
 
 .legend-arc {
   display: inline-block;
-  margin-right: 0.25rem;
+  margin-right: 0.35rem;
   color: var(--text);
-  font-size: 1rem;
-  line-height: 0.6;
+  font-size: 0.95rem;
+  /* Sit on the text baseline instead of hanging above it. */
+  transform: translateY(-0.15em);
 }
 
 /* Beats as groups of subdivisions. The shape of the row IS the meter: 12/8
@@ -569,4 +585,12 @@ header { margin-bottom: 1.5rem; }
   padding-top: 0.7rem;
   color: var(--muted);
   font-size: 0.83rem;
+}
+
+/* The syllable being said right now. */
+.count.now {
+  color: #1b1b1f;
+  background: var(--accent);
+  border-radius: 0.3rem;
+  font-weight: 700;
 }

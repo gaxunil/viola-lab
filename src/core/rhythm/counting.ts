@@ -23,6 +23,8 @@ export interface CountedPulse {
   /** True on the first pulse of a felt beat. */
   readonly isBeat: boolean
   readonly beat: number
+  /** Ticks from the bar line, so playback can light the syllable it is on. */
+  readonly tick: number
 }
 
 /**
@@ -54,6 +56,16 @@ function subdivisionSyllables(pulses: number): string[] {
  * 12/8 reads 1 & a 2 & a 3 & a 4 & a. In 'numbers' style every notated pulse is
  * numbered — 1 to 12 — which is the slow-practice count.
  */
+/**
+ * How many syllables a beat is counted in, and how wide each one is.
+ *
+ * A simple meter's grouping counts beats rather than subdivisions, so it says
+ * one where the beat actually divides in two.
+ */
+function pulsesInBeat(group: number): number {
+  return group === 1 ? 2 : group
+}
+
 export function countBar(meter: Meter, style: CountingStyle = 'syllables'): CountedPulse[] {
   const out: CountedPulse[] = []
 
@@ -61,23 +73,46 @@ export function countBar(meter: Meter, style: CountingStyle = 'syllables'): Coun
     let pulse = 0
     for (const [beat, group] of meter.grouping.entries()) {
       for (let i = 0; i < group; i++) {
-        out.push({ say: String(pulse + 1), isBeat: i === 0, beat })
+        out.push({
+          say: String(pulse + 1),
+          isBeat: i === 0,
+          beat,
+          tick: pulse * meter.pulseTicks,
+        })
         pulse += 1
       }
     }
     return out
   }
 
+  let beatTick = 0
   for (const [beat, group] of meter.grouping.entries()) {
-    // A simple meter's grouping counts beats, not subdivisions, so its beat
-    // still divides in two even though the grouping says one.
-    const pulses = group === 1 ? 2 : group
-    out.push({ say: String(beat + 1), isBeat: true, beat })
-    for (const syllable of subdivisionSyllables(pulses)) {
-      out.push({ say: syllable, isBeat: false, beat })
-    }
+    const pulses = pulsesInBeat(group)
+    const step = (group * meter.pulseTicks) / pulses
+
+    out.push({ say: String(beat + 1), isBeat: true, beat, tick: beatTick })
+    subdivisionSyllables(pulses).forEach((syllable, i) => {
+      out.push({
+        say: syllable,
+        isBeat: false,
+        beat,
+        tick: Math.round(beatTick + (i + 1) * step),
+      })
+    })
+    beatTick += group * meter.pulseTicks
   }
   return out
+}
+
+/** Which counted syllable a tick within the bar falls on. */
+export function pulseIndexAt(meter: Meter, tickInBar: number, style: CountingStyle = 'syllables'): number {
+  const grid = countBar(meter, style)
+  let found = 0
+  for (const [i, pulse] of grid.entries()) {
+    if (tickInBar >= pulse.tick) found = i
+    else break
+  }
+  return found
 }
 
 /** One line, for showing the count as a sentence: '1 & a 2 & a 3 & a 4 & a'. */
@@ -134,23 +169,9 @@ export function countRhythm(
   const grid = countBar(meter, style)
   const placed = placeEvents(meter, events)
 
-  // Where each pulse sits, in ticks from the bar line.
-  const pulseTicks: number[] = []
-  {
-    let tick = 0
-    for (const group of meter.grouping) {
-      const pulses = group === 1 ? 2 : group
-      const step = (group * meter.pulseTicks) / pulses
-      for (let i = 0; i < pulses; i++) {
-        pulseTicks.push(Math.round(tick + i * step))
-      }
-      tick += group * meter.pulseTicks
-    }
-  }
-
   return grid.map((pulse, i) => {
-    const at = pulseTicks[i] ?? 0
-    const next = pulseTicks[i + 1] ?? meter.barTicks
+    const at = pulse.tick
+    const next = grid[i + 1]?.tick ?? meter.barTicks
 
     const starting = placed.find((p) => p.onsetTicks === at)
     const between = placed.some((p) => p.onsetTicks > at && p.onsetTicks < next)

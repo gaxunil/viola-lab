@@ -101,7 +101,18 @@ export function createTransport(deps: TransportDeps): Transport {
   let tempo: TempoMap | null = null
 
   let state: TransportState = 'idle'
+  /** When the run began. Never moves; position is always measured from here. */
   let t0 = 0
+  /**
+   * The scheduler's own anchor, which jumps forward by one loop each time it
+   * wraps.
+   *
+   * Deliberately NOT shared with position reporting. The scheduler runs ahead of
+   * the sound, so it reaches the end of a loop while the music is still playing
+   * the tail of it; if position used this anchor it would report the next
+   * iteration early and, with a count-in, briefly jump back inside it.
+   */
+  let scheduleAnchor = 0
   let nextIndex = 0
   let loopIteration = 0
   let dropped = 0
@@ -135,12 +146,12 @@ export function createTransport(deps: TransportDeps): Transport {
         if (score.loop) {
           // Advance by exactly one loop length rather than re-anchoring to the
           // clock, so a long loop does not accumulate error.
-          t0 += loopDurationSec()
+          scheduleAnchor += loopDurationSec()
           nextIndex = loopStartIndex
           loopIteration += 1
           continue
         }
-        const endsAt = t0 + tempo.secondsAtTick(score.lengthTicks)
+        const endsAt = scheduleAnchor + tempo.secondsAtTick(score.lengthTicks)
         if (now >= endsAt) finish()
         return
       }
@@ -148,7 +159,7 @@ export function createTransport(deps: TransportDeps): Transport {
       const event = score.events[nextIndex]
       if (event === undefined) return
 
-      const at = t0 + tempo.secondsAtTick(event.tick)
+      const at = scheduleAnchor + tempo.secondsAtTick(event.tick)
       if (at >= horizon) return
 
       if (at >= now) {
@@ -268,6 +279,7 @@ export function createTransport(deps: TransportDeps): Transport {
       loopIteration = 0
       dropped = 0
       t0 = deps.clock.currentTime + scheduleAheadSec
+      scheduleAnchor = t0
 
       deps.sink.beginRun()
       setState(score.bodyStartTick > 0 ? 'countIn' : 'running')
@@ -296,7 +308,18 @@ export function createTransport(deps: TransportDeps): Transport {
       if (state !== 'running' && state !== 'countIn') return null
 
       const contextTime = deps.clock.currentTime
-      const heard = contextTime - visualLatency() - t0
+      let heard = contextTime - visualLatency() - t0
+
+      // Fold the elapsed time back into the loop, so a looping score reports a
+      // position inside the loop rather than running off the end of the score.
+      if (score.loop) {
+        const loopStartSec = tempo.secondsAtTick(score.loop.startTick)
+        const loopLength = loopDurationSec()
+        if (loopLength > 0 && heard >= loopStartSec + loopLength) {
+          heard = loopStartSec + ((heard - loopStartSec) % loopLength)
+        }
+      }
+
       const tick = Math.max(0, tempo.tickAtSeconds(heard))
       return describe(tick, contextTime)
     },

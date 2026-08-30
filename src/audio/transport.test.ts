@@ -444,3 +444,71 @@ describe('what the UI highlights', () => {
     expect(transport.positionNow()?.uiIndex).toBe(0)
   })
 })
+
+describe('position while looping', () => {
+  /**
+   * A real bug this pins. The scheduler runs ~100ms ahead of the sound, so it
+   * reaches the end of a loop while the music is still finishing it. When
+   * position shared the scheduler's anchor, it reported the next iteration
+   * early — and with a count-in it briefly jumped BACK INSIDE the count-in,
+   * which made the highlighting stall and restart in the wrong place.
+   */
+  it('never re-enters the count-in once the body has started', () => {
+    const m = meter(12, 8)
+    const score = compileRhythm({
+      meter: m,
+      events: Array.from({ length: 4 }, () => note(dur('quarter', 1))),
+      withClick: true,
+      countInBars: 1,
+      loop: true,
+    })
+
+    const { clock, ticker, transport } = harness()
+    transport.load(score, tempoFromBeat(80, m.beatUnit))
+    transport.start()
+
+    let bodyStarted = false
+    for (let i = 0; i < 60; i++) {
+      clock.advance(0.25)
+      ticker.fire()
+      const position = transport.positionNow()
+      if (!position) continue
+
+      if (!position.isCountIn) bodyStarted = true
+      // Once the exercise proper has begun, a loop must never take us back.
+      if (bodyStarted) {
+        expect(position.isCountIn, `count-in returned at ${clock.currentTime}s`).toBe(false)
+        expect(position.uiIndex).not.toBeNull()
+      }
+    }
+    expect(bodyStarted).toBe(true)
+  })
+
+  it('reports the beat the loop is actually on, over many iterations', () => {
+    const m = meter(12, 8)
+    const score = compileRhythm({
+      meter: m,
+      events: Array.from({ length: 4 }, () => note(dur('quarter', 1))),
+      withClick: false,
+      countInBars: 1,
+      loop: true,
+    })
+
+    const { clock, ticker, transport } = harness()
+    transport.load(score, tempoFromBeat(80, m.beatUnit))
+    transport.start()
+
+    const seen: Array<number | null> = []
+    for (let i = 0; i < 60; i++) {
+      clock.advance(0.25)
+      ticker.fire()
+      const position = transport.positionNow()
+      if (position && !position.isCountIn) seen.push(position.uiIndex)
+    }
+
+    // Every one of the four notated elements gets lit, repeatedly.
+    expect(new Set(seen)).toEqual(new Set([0, 1, 2, 3]))
+    // And it never wanders outside them.
+    expect(seen.every((v) => v !== null && v >= 0 && v <= 3)).toBe(true)
+  })
+})

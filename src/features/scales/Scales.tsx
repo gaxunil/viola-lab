@@ -472,13 +472,21 @@ export default function Scales() {
               highlightIndex={signals.isPlaying() ? signals.uiIndex() : null}
             />
             <p class="legend">
-              <span class="key-dot filled" /> played here
-              <span class="key-dot ghost" /> the same note elsewhere on the board
-              <span class="key-dot tonic" /> the tonic
-              <span class="legend-arc" aria-hidden="true">
-                ⌒
-              </span>{' '}
-              an arc marks a shift, labelled with the position the hand moves into
+              <span class="legend-item">
+                <span class="key-dot filled" /> played here
+              </span>
+              <span class="legend-item">
+                <span class="key-dot ghost" /> the same note elsewhere
+              </span>
+              <span class="legend-item">
+                <span class="key-dot tonic" /> the tonic
+              </span>
+              <span class="legend-item">
+                <span class="legend-arc" aria-hidden="true">
+                  ⌒
+                </span>
+                an arc is a shift, labelled with the position it moves into
+              </span>
             </p>
 
             <p class="meta">
