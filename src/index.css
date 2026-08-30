@@ -482,3 +482,91 @@ header { margin-bottom: 1.5rem; }
 
 .beat-group.active .pip.head { background: var(--accent); transform: scale(1.15); }
 .beat-group.active .pip { background: rgba(200, 164, 92, 0.55); }
+
+/* Each pulse carries what you say on it, directly under its dot. */
+.pulse {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.say {
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The number is the beat; the "& a" between them are quieter by design, because
+   that is how they are said. */
+.say.head {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.beat-group.active .say { color: var(--accent); }
+.beat-group.active .say.head { color: var(--accent); }
+
+/* The spoken count. Played syllables are bright, held ones dim: the visual
+   weight is the same information the brackets carry on paper. */
+.count-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.45rem;
+  justify-content: center;
+  margin: 0 0 0.9rem;
+  padding: 0.6rem 0.5rem;
+  background: #1f1f25;
+  border-radius: 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.count {
+  font-size: 0.95rem;
+  min-width: 1rem;
+  text-align: center;
+}
+
+.count.beat { font-weight: 700; }
+.count.strike { color: var(--text); }
+.count.hold { color: #63636f; }
+.count.silent { color: #4a4a55; text-decoration: line-through; }
+.count.beat.strike { color: var(--accent); }
+
+/* Explainers are collapsed by default: present for the person who wants them,
+   silent for the person who does not. */
+.explainer {
+  margin: 0 0 1.1rem;
+  border: 1px solid #3a3a44;
+  border-radius: 0.6rem;
+  background: #1f1f25;
+}
+
+.explainer summary {
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  list-style: none;
+}
+
+.explainer summary::-webkit-details-marker { display: none; }
+.explainer summary::before { content: '▸ '; color: var(--muted); }
+.explainer[open] summary::before { content: '▾ '; }
+
+.explainer p {
+  margin: 0 0.85rem 0.8rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #cfcfd8;
+}
+
+.explainer .aside {
+  border-top: 1px solid #3a3a44;
+  padding-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.83rem;
+}

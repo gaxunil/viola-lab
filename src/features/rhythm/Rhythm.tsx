@@ -2,6 +2,7 @@ import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import { COMMON_METERS, type Meter } from '@core/rhythm/meter'
 import { type RhythmPreset, presetsForMeter } from '@core/rhythm/presets'
 import { formatDuration } from '@core/rhythm/duration'
+import { countRhythm, countingAdvice } from '@core/rhythm/counting'
 import { compileRhythm } from '@core/compile/rhythm'
 import { clampBpm, tempoFromBeat } from '@core/tempo'
 import { majorKeyAtFifths } from '@core/key/key'
@@ -136,7 +137,35 @@ export default function Rhythm() {
                 highlightIndex={signals.isPlaying() ? signals.uiIndex() : null}
               />
             </div>
+            {/* How to say it out loud. The syllables you only think are
+                dimmed, which is what the brackets mean on paper. */}
+            <div class="count-line" aria-label={`count: ${countRhythm(current.meter, current.events).map((p) => p.say).join(' ')}`}>
+              <For each={countRhythm(current.meter, current.events)}>
+                {(pulse) => (
+                  <span
+                    class="count"
+                    classList={{
+                      strike: pulse.role === 'strike',
+                      hold: pulse.role === 'hold',
+                      silent: pulse.role === 'rest',
+                      beat: pulse.isBeat,
+                    }}
+                    title={
+                      pulse.role === 'strike'
+                        ? 'play here'
+                        : pulse.role === 'hold'
+                          ? 'still ringing — say it, do not play it'
+                          : 'silent'
+                    }
+                  >
+                    {pulse.say}
+                  </span>
+                )}
+              </For>
+            </div>
+
             <p class="teaching">{current.note}</p>
+            <p class="teaching muted-block">{countingAdvice(current.meter)}</p>
           </>
         )}
       </Show>

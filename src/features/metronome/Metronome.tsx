@@ -1,6 +1,7 @@
 import { For, Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import { COMMON_METERS, type Meter } from '@core/rhythm/meter'
 import { compileMetronome } from '@core/compile/metronome'
+import { countBar, countingAdvice } from '@core/rhythm/counting'
 import { bpmInBeat, clampBpm, tempoFromBeat } from '@core/tempo'
 import { formatDuration } from '@core/rhythm/duration'
 import { createAudioSystem } from '@audio/index'
@@ -22,6 +23,10 @@ export default function Metronome() {
   const [meterIndex, setMeterIndex] = createSignal(6) // 12/8, the one she asked about
   const [bpm, setBpm] = createSignal(90)
   const [unlocked, setUnlocked] = createSignal(false)
+
+  const counted = createMemo(() => countBar(meter()))
+  /** The syllables belonging to one felt beat. */
+  const countForBeat = (beat: number) => counted().filter((pulse) => pulse.beat === beat)
 
   const meter = (): Meter => COMMON_METERS[meterIndex()] ?? COMMON_METERS[0]!
 
@@ -76,8 +81,8 @@ export default function Metronome() {
           actually divides into, and it makes the simple/compound distinction
           the visible difference between a pair and a triple.
         */}
-        <For each={meter().grouping.map((g) => (g === 1 ? 2 : g))}>
-          {(group, beat) => (
+        <For each={meter().grouping}>
+          {(_group, beat) => (
             <span
               class="beat-group"
               classList={{
@@ -86,9 +91,14 @@ export default function Metronome() {
                 medium: meter().accents[beat()] === 'medium',
               }}
             >
-              <For each={Array.from({ length: group })}>
-                {(_, pulse) => (
-                  <span class="pip" classList={{ head: pulse() === 0 }} aria-hidden="true" />
+              <For each={countForBeat(beat())}>
+                {(pulse, i) => (
+                  <span class="pulse">
+                    <span class="pip" classList={{ head: i() === 0 }} aria-hidden="true" />
+                    <span class="say" classList={{ head: i() === 0 }}>
+                      {pulse.say}
+                    </span>
+                  </span>
                 )}
               </For>
             </span>
@@ -115,6 +125,8 @@ export default function Metronome() {
       </label>
 
       <p class="meter-explain">{meter().description}</p>
+
+      <p class="teaching">{countingAdvice(meter())}</p>
 
       <label class="field">
         <span>Tempo — {tempoLabel()}</span>

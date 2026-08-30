@@ -373,6 +373,58 @@ export default function Scales() {
             </Show>
 
             <p class="teaching">{current.type.blurb}</p>
+
+            {/*
+              Collapsed by default so it does not shout at someone who already
+              knows, but present on the screen where the question actually comes
+              up rather than filed away in a help page.
+            */}
+            <details class="explainer">
+              <summary>What is a key, exactly?</summary>
+              <p>
+                A key is two things at once: a note that feels like <em>home</em>, and the
+                seven notes that belong with it. Play {formatPitch(current.tonic)} major and
+                stop on the last note — that settled feeling is the key asserting itself.
+                Stop one note early and you can hear it wanting to keep going.
+              </p>
+              <p>
+                Which seven notes belong is decided by the step pattern above. Starting on{' '}
+                {formatPitch(current.tonic)} and following it is what forces{' '}
+                {current.key.signature.letters.length === 0 ? (
+                  <>no sharps or flats at all — which is what makes C major the odd one out</>
+                ) : (
+                  <>
+                    the {current.key.signature.accidental}s on{' '}
+                    {current.key.signature.letters.join(', ')}
+                  </>
+                )}
+                . They are not a decision anyone made; they are what the pattern requires.
+              </p>
+              <p>
+                The <strong>key signature</strong> is just shorthand.{' '}
+                {current.key.signature.letters.length === 0 ? (
+                  <>
+                    C major needs none, so the clef stands alone.
+                  </>
+                ) : (
+                  <>
+                    Rather than write a {current.key.signature.accidental} beside every{' '}
+                    {current.key.signature.letters.join(', ')} in the whole piece, it is
+                    written once after the clef and applies all the way through. That is why
+                    the staff above shows{' '}
+                    {current.key.signature.letters.length}{' '}
+                    {current.key.signature.accidental}
+                    {current.key.signature.letters.length === 1 ? '' : 's'} and then no
+                    accidentals at all.
+                  </>
+                )}
+              </p>
+              <p class="aside">
+                Careful with one thing: a key is not the same as a scale. The scale is the
+                notes in order, which is a practice exercise. The key is the gravity — it is
+                still there in a piece that never plays the scale straight through.
+              </p>
+            </details>
           </>
         )}
       </Show>

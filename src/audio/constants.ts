@@ -11,8 +11,13 @@ export const MASTER_GAIN = 1.0
 /** Peak of a single voice's envelope, before velocity. */
 export const NOTE_PEAK = 0.45
 
-/** The click is deliberately quieter than a note; it is a reference, not the music. */
-export const CLICK_PEAK = 0.34
+/**
+ * The click has to cut through a bowed instrument in a room, so it is no longer
+ * shy about it. It was set below the note peak on the theory that a click is a
+ * reference rather than the music — true, but a reference you cannot hear over
+ * your own playing is no use at all.
+ */
+export const CLICK_PEAK = 0.62
 
 export const LIMITER = {
   threshold: -6,
