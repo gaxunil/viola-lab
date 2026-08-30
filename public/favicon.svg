@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#1b1b1f"/>
+  <!-- No staff lines at this size: at 32px they collapse into horizontal banding
+       that muddies the clef. The clef alone, larger, stays legible. -->
+  <g fill="#c8a45c" transform="translate(256,256) scale(1.42) translate(-256,-256) translate(38,0)">
+    <rect x="132" y="150" width="26" height="212" rx="6"/>
+    <rect x="170" y="150" width="11" height="212" rx="4"/>
+    <path d="M193 150
+             C 246 150, 266 172, 266 200
+             C 266 228, 246 244, 214 252
+             L 214 256
+             C 246 250, 300 240, 300 196
+             C 300 166, 272 150, 236 150
+             Z"/>
+    <path d="M193 362
+             C 246 362, 266 340, 266 312
+             C 266 284, 246 268, 214 260
+             L 214 256
+             C 246 262, 300 272, 300 316
+             C 300 346, 272 362, 236 362
+             Z"/>
+  </g>
+</svg>

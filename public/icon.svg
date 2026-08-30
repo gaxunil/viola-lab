@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a2a32"/>
+      <stop offset="1" stop-color="#17171b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#ground)"/>
+
+  <!-- The five staff lines, faint: context for the clef sitting on them. -->
+  <g stroke="#4a4a55" stroke-width="7" stroke-linecap="round" opacity="0.55">
+    <line x1="104" y1="168" x2="408" y2="168"/>
+    <line x1="104" y1="212" x2="408" y2="212"/>
+    <line x1="104" y1="256" x2="408" y2="256"/>
+    <line x1="104" y1="300" x2="408" y2="300"/>
+    <line x1="104" y1="344" x2="408" y2="344"/>
+  </g>
+
+  <!-- Alto clef. The two vertical bars, then the mirrored C bowls whose
+       points meet on the middle line — which is what the clef is telling you. -->
+  <g fill="#c8a45c" transform="translate(38,0)">
+    <rect x="132" y="150" width="26" height="212" rx="6"/>
+    <rect x="170" y="150" width="11" height="212" rx="4"/>
+
+    <!-- upper bowl -->
+    <path d="M193 150
+             C 246 150, 266 172, 266 200
+             C 266 228, 246 244, 214 252
+             L 214 256
+             C 246 250, 300 240, 300 196
+             C 300 166, 272 150, 236 150
+             Z"/>
+    <path d="M236 150
+             C 272 150, 300 166, 300 196
+             C 300 240, 246 250, 214 256
+             L 214 252
+             C 246 244, 266 228, 266 200
+             C 266 172, 246 150, 193 150 Z"
+          opacity="0"/>
+
+    <!-- lower bowl: the upper one mirrored about the middle line -->
+    <path d="M193 362
+             C 246 362, 266 340, 266 312
+             C 266 284, 246 268, 214 260
+             L 214 256
+             C 246 262, 300 272, 300 316
+             C 300 346, 272 362, 236 362
+             Z"/>
+  </g>
+</svg>

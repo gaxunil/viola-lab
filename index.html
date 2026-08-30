@@ -6,6 +6,20 @@
     <meta name="theme-color" content="#1b1b1f" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- The name under the icon once she adds it to the Home Screen. -->
+    <meta name="apple-mobile-web-app-title" content="Viola Lab" />
+    <meta name="application-name" content="Viola Lab" />
+
+    <!-- SVG first for browsers that take it; PNGs for those that do not. The
+         16px file is a separate, heavier drawing, because the clef's two thin
+         vertical bars merge into a blur at that size. -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
+    <!-- Full-bleed: iOS applies its own rounded mask, and artwork with its own
+         corners leaves dark wedges outside it. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+
     <title>Viola Lab</title>
   </head>
   <body>

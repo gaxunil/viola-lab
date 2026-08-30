@@ -24,13 +24,24 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
-        icons: [],
+        icons: [
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+          // Android crops icons to its own shape; the maskable variant keeps the
+          // clef inside the safe zone so nothing important is cut off.
+          {
+            src: '/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
       },
       workbox: {
         // Samples are content-addressed by directory version (samples/viola-v1/...),
         // so they can be cached hard once they land.
         // woff2 covers the self-hosted Bravura/Academico; m4a the viola samples.
-        globPatterns: ['**/*.{js,css,html,woff2,m4a}'],
+        globPatterns: ['**/*.{js,css,html,woff2,m4a,png,svg}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
     }),
